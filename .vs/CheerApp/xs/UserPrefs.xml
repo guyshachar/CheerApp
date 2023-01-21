@@ -1,0 +1,42 @@
+﻿<Properties StartupConfiguration="{A10944A3-80E8-4A8D-A6F5-1A10606AAE60}|Default">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|iPhoneSimulator" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="CheerApp.iOS/Services/UIServices.cs">
+    <Files>
+      <File FileName="CheerApp.iOS/Screens/CheerAppScreen.xib.designer.cs" />
+      <File FileName="CheerApp.iOS/AppDelegate.cs" />
+      <File FileName="CheerApp.iOS/Services/UIServices.cs" Line="81" Column="31" />
+      <File FileName="CheerApp.iOS/Screens/CheerAppScreen.xib.cs" />
+      <File FileName="CheerApp.iOS/Main.cs" />
+      <File FileName="CheerApp.iOS/Extensions/DependencyServiceExtension.cs" />
+      <File FileName="CheerApp.iOS/Interfaces/IUIServices.cs" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="CheerApp" expanded="True" />
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State>
+          <Value>p.Data[APN_BODY].ToString().Length</Value>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <Breakpoint enabled="false" file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/AppDelegate.cs" relfile="CheerApp.iOS/AppDelegate.cs" line="86" column="1" />
+    <Breakpoint enabled="false" file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/AppDelegate.cs" relfile="CheerApp.iOS/AppDelegate.cs" line="59" column="1" />
+    <Breakpoint enabled="false" file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/AppDelegate.cs" relfile="CheerApp.iOS/AppDelegate.cs" line="97" column="1" />
+    <Breakpoint enabled="false" file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/AppDelegate.cs" relfile="CheerApp.iOS/AppDelegate.cs" line="105" column="1" />
+    <Breakpoint enabled="false" file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Screens/CheerAppScreen.xib.cs" relfile="CheerApp.iOS/Screens/CheerAppScreen.xib.cs" line="115" column="1" />
+    <Breakpoint enabled="false" file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Services/PushNotificationHandler.cs" relfile="CheerApp.iOS/Services/PushNotificationHandler.cs" line="14" column="1" />
+    <Breakpoint enabled="false" file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Services/PushNotificationHandler.cs" relfile="CheerApp.iOS/Services/PushNotificationHandler.cs" line="18" column="1" />
+    <Breakpoint enabled="false" file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Services/PushNotificationHandler.cs" relfile="CheerApp.iOS/Services/PushNotificationHandler.cs" line="22" column="1" />
+    <Breakpoint enabled="false" file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/AppDelegate.cs" relfile="CheerApp.iOS/AppDelegate.cs" line="110" column="1" />
+    <Breakpoint enabled="false" file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Services/PushNotificationHandler.cs" relfile="CheerApp.iOS/Services/PushNotificationHandler.cs" line="26" column="1" />
+    <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Screens/CheerAppScreen.xib.cs" relfile="CheerApp.iOS/Screens/CheerAppScreen.xib.cs" line="103" column="1" />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.ItemProperties.CheerApp.iOS PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget." />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>
