@@ -16,6 +16,7 @@ using Plugin.PushNotification;
 using CoreAudioKit;
 using CheerApp.Common;
 using Command = CheerApp.Common.Command;
+using static Xamarin.Forms.Internals.GIFBitmap;
 
 namespace CheerApp.iOS
 {
@@ -30,7 +31,6 @@ namespace CheerApp.iOS
         public CheerAppScreen() : base(nameof(CheerAppScreen), null)
         {
             this.uiServices = DependencyService.Get<IUIServices>();
-
             this.Title = "יאללה אופק ביטון";
         }
 
@@ -100,55 +100,27 @@ namespace CheerApp.iOS
 
         private async Task InitiatePushHandlersAsync()
         {
-            SetMessageText($"{this.lblMain.Text} TOKEN REC: {CrossPushNotification.Current.Token}");
-
-            // Handle when your app starts
-            CrossPushNotification.Current.OnTokenRefresh += (s, p) =>
-            {
-                System.Diagnostics.Debug.WriteLine($"TOKEN REC: {p.Token}");
-                SetMessageText($"TOKEN REC: {p.Token}");
-            };
+            await Clipboard.SetTextAsync(CrossPushNotification.Current.Token);
+            //SetMessageText(lblMain, $"{this.lblMain.Text} TOKEN REC: {CrossPushNotification.Current.Token}");
 
             CrossPushNotification.Current.OnNotificationReceived += async (s, p) => await NotificationReceivedAsync(s, p);
 
-            CrossPushNotification.Current.OnNotificationOpened += (s, p) =>
-            {
-                System.Diagnostics.Debug.WriteLine("Opened");
-                foreach (var data in p.Data)
-                {
-                    System.Diagnostics.Debug.WriteLine($"{data.Key} : {data.Value}");
-                }
+            CrossPushNotification.Current.OnNotificationOpened += async (s, p) => await NotificationOpenedAsync(s, p);
 
-                if (!string.IsNullOrEmpty(p.Identifier))
-                {
-                    SetMessageText(p.Identifier);
-                }
-                else if (p.Data.ContainsKey("color"))
-                {
-                    Device.BeginInvokeOnMainThread(() =>
-                    {
-                        //mPage.Navigation.PushAsync(new ContentPage()
-                        //{
-                        //    BackgroundColor = Color.FromHex($"{p.Data["color"]}")
-                        //});
-                    });
-                }
-                else if (p.Data.ContainsKey("aps.alert.title"))
-                {
-                    SetMessageText($"{p.Data["aps.alert.title"]}");
-                }
-            };
-            CrossPushNotification.Current.OnNotificationDeleted += (s, p) =>
+            CrossPushNotification.Current.OnNotificationDeleted += async (s, p) => 
             {
                 System.Diagnostics.Debug.WriteLine("Dismissed");
             };
         }
 
-        private void SetMessageText(string text)
+        private void SetMessageText(object obj, string text)
         {
             Device.BeginInvokeOnMainThread(() =>
             {
-                lblMain.Text = text;
+                if (obj is UILabel)
+                    ((UILabel)obj).Text = text;
+                else if (obj is UITextField)
+                    ((UITextField)obj).Text = text;
             });
         }
 
@@ -156,10 +128,13 @@ namespace CheerApp.iOS
         {
             try
             {
+                var duration = TimeSpan.FromSeconds(1);
+                Vibration.Vibrate(duration);
+
                 System.Diagnostics.Debug.WriteLine("Received");
                 if (p.Data.ContainsKey(APN_TITLE))
                 {
-                    SetMessageText($"{p.Data[APN_TITLE]}");
+                    SetMessageText(lblMain, $"{p.Data[APN_TITLE]}");
                 }
                 if (p.Data.ContainsKey(APN_BODY))
                 {
@@ -167,11 +142,38 @@ namespace CheerApp.iOS
                     await uiServices.SyncActivityAsync(body.StartTime);
                     await uiServices.ResetShowAsync(this, body.Json);
                 }
-
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
+        }
+
+        private async Task NotificationOpenedAsync(object s, PushNotificationResponseEventArgs p)
+        {
+            System.Diagnostics.Debug.WriteLine("Opened");
+            foreach (var data in p.Data)
+            {
+                System.Diagnostics.Debug.WriteLine($"{data.Key} : {data.Value}");
+            }
+
+            if (!string.IsNullOrEmpty(p.Identifier))
+            {
+                SetMessageText(lblMain, p.Identifier);
+            }
+            else if (p.Data.ContainsKey("color"))
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    //mPage.Navigation.PushAsync(new ContentPage()
+                    //{
+                    //    BackgroundColor = Color.FromHex($"{p.Data["color"]}")
+                    //});
+                });
+            }
+            else if (p.Data.ContainsKey("aps.alert.title"))
+            {
+                SetMessageText(lblMain, $"{p.Data["aps.alert.title"]}");
             }
         }
 

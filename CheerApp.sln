@@ -32,5 +32,6 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = CheerApp.iOS\CheerApp.iOS.csproj
+		version = 0.2
 	EndGlobalSection
 EndGlobal

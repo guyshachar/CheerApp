@@ -2,3 +2,9 @@ bin
 obj
 debug
 packages
+*.ipa
+*.json
+*.xml
+.vs/CheerApp/xs/UserPrefs.xml
+.vs/CheerApp/xs/project-cache/CheerApp.iOS-Release|iPhoneSimulator.json
+.vs/CheerApp/xs/project-cache/CheerApp.iOS-Release|iPhoneSimulator.json

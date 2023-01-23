@@ -14,9 +14,17 @@ namespace CheerApp.iOS
 	{
 		[Outlet]
 		UIKit.UILabel lblMain { get; set; }
+
+		[Outlet]
+		UIKit.UITextField txtDeviceToken { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (txtDeviceToken != null) {
+				txtDeviceToken.Dispose ();
+				txtDeviceToken = null;
+			}
+
 			if (lblMain != null) {
 				lblMain.Dispose ();
 				lblMain = null;

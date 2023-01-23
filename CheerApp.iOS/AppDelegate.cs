@@ -10,6 +10,11 @@ using Plugin.PushNotification;
 using Xamarin.Forms.Platform.iOS;
 using static SystemConfiguration.NetworkReachability;
 using Notification = CheerApp.Common.Notification;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Xamarin.Essentials;
+using CheerApp.Common;
+using System.Security.Cryptography;
 
 namespace CheerApp.iOS
 {
@@ -18,7 +23,7 @@ namespace CheerApp.iOS
     {
         //---- declarations
         private UIWindow window;
-        private IUIAlertViewDelegate uIAlertViewDelegate = null;
+        private static IUIAlertViewDelegate uIAlertViewDelegate = null;
         private IPushNotificationHandler pushNotificationHandler;
 
         public AppDelegate()
@@ -34,9 +39,13 @@ namespace CheerApp.iOS
             //global::Xamarin.Forms.Forms.Init();
             //LoadApplication(new App());
 
-            PushNotificationManager.Initialize(options, pushNotificationHandler, true);
+            PushNotificationManager.Initialize(options, pushNotificationHandler, true);
 
             UIApplication.SharedApplication.ApplicationIconBadgeNumber = 0;
+
+            // Handle when your app starts
+            Task.Run(async () => await TokenRefreshAsync(null, new PushNotificationTokenEventArgs(CrossPushNotification.Current.Token)));
+            CrossPushNotification.Current.OnTokenRefresh += async (s, p) => await TokenRefreshAsync(s, p);
 
             this.window = new UIWindow(UIScreen.MainScreen.Bounds);
 
@@ -58,9 +67,8 @@ namespace CheerApp.iOS
         public override void ReceivedLocalNotification(UIApplication application, UILocalNotification notification)
         {
             // show an alert
-            IUIAlertViewDelegate del = null;
             var body = JsonSerializer.Deserialize<Notification>(notification.AlertBody);
-            new UIAlertView(notification.AlertAction, notification.AlertBody, del, "OK", null).Show();
+            new UIAlertView(notification.AlertAction, notification.AlertBody, uIAlertViewDelegate, "OK", null).Show();
             Assembly asm = typeof(AppDelegate).Assembly;
             Type screenType = asm.GetType(body.ScreenName);
             var uiViewController = DependencyServiceExtension.Get(screenType);
@@ -84,7 +92,7 @@ namespace CheerApp.iOS
         /// </summary>
         public override void RegisteredForRemoteNotifications(UIApplication application, NSData deviceToken)
         {
-      		PushNotificationManager.DidRegisterRemoteNotifications(deviceToken);
+            PushNotificationManager.DidRegisterRemoteNotifications(deviceToken);
             deviceToken = deviceToken.ToString();
         }
 
@@ -108,7 +116,6 @@ namespace CheerApp.iOS
 
         public override void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
         {
-
         }
 
         private void Startup()
@@ -118,6 +125,16 @@ namespace CheerApp.iOS
             DependencyServiceExtension.Register<HomeScreen>();
             DependencyServiceExtension.Register<CheerAppScreen>();
             DependencyServiceExtension.Register<HelloUniverseScreen>();
+        }
+
+        private async Task TokenRefreshAsync(object s, PushNotificationTokenEventArgs p)
+        {
+            System.Diagnostics.Debug.WriteLine($"TOKEN REC: {p.Token}");
+            var text =
+                $"Name: {DeviceInfo.Name}{System.Environment.NewLine}" +
+                $"Device Token: {p.Token}";
+            await Clipboard.SetTextAsync(text);
+            new UIAlertView("New Device Token", "Please paste new Token to Guy", uIAlertViewDelegate, "OK", null).Show();
         }
     }
 }
