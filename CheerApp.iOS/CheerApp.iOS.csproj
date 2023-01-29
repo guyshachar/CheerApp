@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Xamarin.Build.Download.0.11.0\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.11.0\build\Xamarin.Build.Download.props')" />
   <Import Project="packages\Xamarin.Forms.5.0.0.2545\build\Xamarin.Forms.props" Condition="Exists('packages\Xamarin.Forms.5.0.0.2545\build\Xamarin.Forms.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -25,7 +26,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>False</ConsolePause>
-    <MtouchLink>None</MtouchLink>
+    <MtouchLink>SdkOnly</MtouchLink>
     <MtouchDebug>True</MtouchDebug>
     <MtouchI18n></MtouchI18n>
     <MtouchArch>x86_64</MtouchArch>
@@ -64,6 +65,8 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <DeviceSpecificBuild>false</DeviceSpecificBuild>
     <OptimizePNGs>false</OptimizePNGs>
+    <MtouchLink>None</MtouchLink>
+    <MtouchInterpreter>-all</MtouchInterpreter>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
@@ -83,7 +86,9 @@
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
-    <Reference Include="Xamarin.iOS" />
+    <Reference Include="Xamarin.iOS">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Xamarin.Forms.Core">
       <HintPath>packages\Xamarin.Forms.5.0.0.2545\lib\Xamarin.iOS10\Xamarin.Forms.Core.dll</HintPath>
     </Reference>
@@ -124,12 +129,49 @@
       <HintPath>packages\Plugin.PushNotification.3.6.9\lib\xamarinios10\Plugin.PushNotification.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
+    <Reference Include="Firebase.Core">
+      <HintPath>..\packages\Xamarin.Firebase.iOS.Core.8.10.0.3\lib\xamarinios10\Firebase.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System.Numerics.Vectors" />
+    <Reference Include="Firebase.Installations">
+      <HintPath>..\packages\Xamarin.Firebase.iOS.Installations.8.10.0.3\lib\xamarinios10\Firebase.Installations.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.CloudMessaging">
+      <HintPath>..\packages\Xamarin.Firebase.iOS.CloudMessaging.8.10.0.3\lib\xamarinios10\Firebase.CloudMessaging.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Api.Gax">
+      <HintPath>..\packages\Google.Api.Gax.3.2.0\lib\netstandard2.0\Google.Api.Gax.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Core">
+      <HintPath>..\packages\Google.Apis.Core.1.49.0\lib\netstandard2.0\Google.Apis.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis">
+      <HintPath>..\packages\Google.Apis.1.49.0\lib\netstandard2.0\Google.Apis.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Auth">
+      <HintPath>..\packages\Google.Apis.Auth.1.49.0\lib\netstandard2.0\Google.Apis.Auth.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Auth.PlatformServices">
+      <HintPath>..\packages\Google.Apis.Auth.1.49.0\lib\netstandard2.0\Google.Apis.Auth.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Api.Gax.Rest">
+      <HintPath>..\packages\Google.Api.Gax.Rest.3.2.0\lib\netstandard2.0\Google.Api.Gax.Rest.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable">
+      <HintPath>..\packages\System.Collections.Immutable.1.7.1\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.CloudFirestore">
+      <HintPath>..\packages\Xamarin.Firebase.iOS.CloudFirestore.8.10.0.3\lib\xamarinios10\Firebase.CloudFirestore.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Entitlements.plist" />
-    <None Include="Info.plist" />
     <None Include=".DS_Store" />
+    <None Include="Info.plist" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -140,11 +182,11 @@
     <Compile Include="Screens\CheerAppScreen.xib.designer.cs">
       <DependentUpon>CheerAppScreen.xib</DependentUpon>
     </Compile>
-    <Compile Include="Screens\HelloUniverseScreen.xib.cs">
-      <DependentUpon>HelloUniverseScreen.xib</DependentUpon>
+    <Compile Include="Screens\SendPushNotification.xib.cs">
+      <DependentUpon>SendPushNotification.xib</DependentUpon>
     </Compile>
-    <Compile Include="Screens\HelloUniverseScreen.xib.designer.cs">
-      <DependentUpon>HelloUniverseScreen.xib</DependentUpon>
+    <Compile Include="Screens\SendPushNotification.xib.designer.cs">
+      <DependentUpon>SendPushNotification.xib</DependentUpon>
     </Compile>
     <Compile Include="Screens\HomeScreen.xib.cs">
       <DependentUpon>HomeScreen.xib</DependentUpon>
@@ -156,6 +198,11 @@
     <Compile Include="Services\UIServices.cs" />
     <Compile Include="Extensions\DependencyServiceExtension.cs" />
     <Compile Include="Services\PushNotificationHandler.cs" />
+    <Compile Include="Services\ApnSettings.cs" />
+    <Compile Include="Services\FcmSettings.cs" />
+    <Compile Include="Extensions\FirestoreExtension.cs" />
+    <Compile Include="Services\FirestoreService.cs" />
+    <Compile Include="PlatformImplementations\EventRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Screens\" />
@@ -177,66 +224,28 @@
     <ProjectReference Include="..\CheerApp.Common\CheerApp.Common.csproj">
       <Name>CheerApp.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CorePush\CorePush.csproj">
+      <Name>CorePush</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <InterfaceDefinition Include="Screens\CheerAppScreen.xib" />
-    <InterfaceDefinition Include="Screens\HelloUniverseScreen.xib" />
-    <InterfaceDefinition Include="Screens\HomeScreen.xib" />
-  </ItemGroup>
-  <ItemGroup>
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\88.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\1024.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\76.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\60.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\48.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\216.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\64.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\58.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\167.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\72.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\66.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\172.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\29.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\100.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\114.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\128.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\102.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\512.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\16.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\120.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\256.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\20.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\32.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\Contents.json" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\180.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\57.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\80.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\55.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\196.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\40.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\87.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\50.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\92.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\144.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\AppIcon.appiconset\152.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\LaunchImage.launchimage\Default-Portrait%402x~ipad.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\LaunchImage.launchimage\Default-Landscape~ipad.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\LaunchImage.launchimage\Default-Portrait~ipad.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\LaunchImage.launchimage\Default%402x.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\LaunchImage.launchimage\Default-Landscape%402x~ipad.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\LaunchImage.launchimage\Default-568h%402x.png" />
-    <ImageAsset Include="Resources\Assets.xcassets\LaunchImage.launchimage\Contents.json" />
-    <ImageAsset Include="Resources\Assets.xcassets\LaunchImage.launchimage\Default.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\appstore.png" />
-    <BundleResource Include="Resources\playstore.png" />
     <BundleResource Include="Resources\android\mipmap-mdpi\CheerApp.png" />
     <BundleResource Include="Resources\android\mipmap-hdpi\CheerApp.png" />
     <BundleResource Include="Resources\android\mipmap-xxxhdpi\CheerApp.png" />
     <BundleResource Include="Resources\android\mipmap-xxhdpi\CheerApp.png" />
     <BundleResource Include="Resources\android\mipmap-xhdpi\CheerApp.png" />
+    <BundleResource Include="GoogleService-Info.plist" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterfaceDefinition Include="Screens\CheerAppScreen.xib" />
+    <InterfaceDefinition Include="Screens\HomeScreen.xib" />
+    <InterfaceDefinition Include="Screens\SendPushNotification.xib" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="packages\Xamarin.Forms.5.0.0.2545\build\Xamarin.Forms.targets" Condition="Exists('packages\Xamarin.Forms.5.0.0.2545\build\Xamarin.Forms.targets')" />
+  <Import Project="..\packages\Xamarin.Build.Download.0.11.0\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.11.0\build\Xamarin.Build.Download.targets')" />
+  <Import Project="..\packages\Xamarin.Firebase.iOS.Core.8.10.0.3\build\Xamarin.Firebase.iOS.Core.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.Core.8.10.0.3\build\Xamarin.Firebase.iOS.Core.targets')" />
+  <Import Project="..\packages\Xamarin.Firebase.iOS.Installations.8.10.0.3\build\Xamarin.Firebase.iOS.Installations.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.Installations.8.10.0.3\build\Xamarin.Firebase.iOS.Installations.targets')" />
+  <Import Project="..\packages\Xamarin.Firebase.iOS.CloudMessaging.8.10.0.3\build\Xamarin.Firebase.iOS.CloudMessaging.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.CloudMessaging.8.10.0.3\build\Xamarin.Firebase.iOS.CloudMessaging.targets')" />
+  <Import Project="..\packages\Xamarin.Firebase.iOS.CloudFirestore.8.10.0.3\build\Xamarin.Firebase.iOS.CloudFirestore.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.CloudFirestore.8.10.0.3\build\Xamarin.Firebase.iOS.CloudFirestore.targets')" />
 </Project>

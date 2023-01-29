@@ -1,31 +1,47 @@
 ﻿<Properties BuildWithMSBuildOnMono="True" StartupConfiguration="{A10944A3-80E8-4A8D-A6F5-1A10606AAE60}|Default">
-  <MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.CheerApp.iOS Xamarin.HotReload.DebuggerTimeoutException.CheerApp.iOS.HideInfoBar="True" Xamarin.HotReload.MonoInterpreterErrorInfoBar.CheerApp.iOS.HideInfoBar="True" PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.BC3C3856-1C80-4AA3-B3A2-0FC5B4F3D4C5" Xamarin.HotReload.WrongLinkerErrorInfoBar.CheerApp.iOS.HideInfoBar="True" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="CheerApp.iOS/Extensions/FirestoreExtension.cs">
     <Files>
-      <File FileName="CheerApp.iOS/Screens/CheerAppScreen.xib.cs" Line="137" Column="1" />
-      <File FileName="CheerApp.iOS/Info.plist" />
-      <File FileName="CheerApp.iOS/CheerApp.iOS.csproj" Line="230" Column="30" />
+      <File FileName="CheerApp.iOS/Screens/SendPushNotification.xib.cs" Line="63" Column="6" />
+      <File FileName="CheerApp.iOS/AppDelegate.cs" Line="58" Column="1" />
+      <File FileName="CheerApp.iOS/Extensions/FirestoreExtension.cs" Line="99" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="CheerApp" expanded="True">
-            <Node name="CheerApp.iOS" expanded="True" selected="True">
-              <Node name="Resources" expanded="True" />
+            <Node name="CheerApp.iOS" expanded="True">
+              <Node name="Extensions" expanded="True" />
+              <Node name="PlatformImplementations" expanded="True" />
               <Node name="Screens" expanded="True">
                 <Node name="CheerAppScreen.xib" expanded="True" />
+                <Node name="SendPushNotification.xib" expanded="True" />
               </Node>
+              <Node name="Main.cs" selected="True" />
             </Node>
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhone" />
   <Debugger.DebugSourceFolders />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CorePush/Utils/AppleCryptoHelper.cs" relfile="CorePush/Utils/AppleCryptoHelper.cs" line="34" column="1" />
+      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CorePush/Utils/AppleCryptoHelper.cs" relfile="CorePush/Utils/AppleCryptoHelper.cs" line="28" column="1" />
+      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Screens/CheerAppScreen.xib.cs" relfile="CheerApp.iOS/Screens/CheerAppScreen.xib.cs" line="145" column="1" />
+      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Extensions/FirestoreExtension.cs" relfile="CheerApp.iOS/Extensions/FirestoreExtension.cs" line="49" column="1" />
+      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Extensions/FirestoreExtension.cs" relfile="CheerApp.iOS/Extensions/FirestoreExtension.cs" line="78" column="1" />
+      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Extensions/FirestoreExtension.cs" relfile="CheerApp.iOS/Extensions/FirestoreExtension.cs" line="105" column="1" />
+      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CorePush/Google/AndroidDevice.cs" relfile="CorePush/Google/AndroidDevice.cs" line="11" column="1" />
+      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CorePush/Apple/IOSDevice.cs" relfile="CorePush/Apple/IOSDevice.cs" line="29" column="1" />
+      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CorePush/Apple/IOSDevice.cs" relfile="CorePush/Apple/IOSDevice.cs" line="30" column="1" />
+      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CorePush/Apple/IOSDevice.cs" relfile="CorePush/Apple/IOSDevice.cs" line="34" column="1" />
+      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CorePush/Apple/IOSDevice.cs" relfile="CorePush/Apple/IOSDevice.cs" line="35" column="1" />
+      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/AppDelegate.cs" relfile="CheerApp.iOS/AppDelegate.cs" line="58" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.ItemProperties.CheerApp.iOS PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneDeviceTarget.00008030-001454413A38802E" Xamarin.HotReload.WrongLinkerErrorInfoBar.CheerApp.iOS.HideInfoBar="True" />
 </Properties>

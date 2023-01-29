@@ -6,15 +6,18 @@
         <ReleaseVersion>0.2</ReleaseVersion>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Xamarin.Forms" Version="4.8.0.1821" />
         <PackageReference Include="Plugin.PushNotification" Version="3.6.9" />
         <PackageReference Include="System.Text.Json" Version="7.0.1" />
+        <PackageReference Include="Xamarin.Forms" Version="5.0.0.2545" />
     </ItemGroup>
     <ItemGroup>
       <None Remove="Models\" />
       <None Remove="System.Text.Json" />
+      <None Remove="Xamarin.Forms" />
+      <None Remove="Repositories\" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Models\" />
+      <Folder Include="Repositories\" />
     </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CheerApp.iOS.Extensions;
 using Foundation;
 using UIKit;
 
@@ -18,7 +19,7 @@ namespace CheerApp.iOS
 			base.ViewDidLoad();
 
 			//---- when the hello world button is clicked
-			this.btnHelloWorld.TouchUpInside += (sender, e) =>
+			this.btnShowRoom.TouchUpInside += (sender, e) =>
 			{
 				//---- instantiate a new hello world screen, if it's null (it may not be null if they've navigated
 				// backwards from it
@@ -27,9 +28,10 @@ namespace CheerApp.iOS
 			};
 
 			//---- same thing, but for the hello universe screen
-			this.btnHelloUniverse.TouchUpInside += (sender, e) =>
+			this.btnSendPush.TouchUpInside += (sender, e) =>
 			{
-				this.NavigationController.PushViewController(DependencyServiceExtension.Get(typeof(HelloUniverseScreen)), true);
+				var screen = new SendPushNotification();//DependencyServiceExtension.Get(typeof(SendPushNotification))
+                this.NavigationController.PushViewController(screen, true);
 			};
 		}
 

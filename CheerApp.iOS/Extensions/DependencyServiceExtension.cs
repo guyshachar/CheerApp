@@ -4,7 +4,7 @@ using System.ComponentModel;
 using UIKit;
 using Xamarin.Forms;
 
-namespace CheerApp.iOS
+namespace CheerApp.iOS.Extensions
 {
 	public static class DependencyServiceExtension
 	{
