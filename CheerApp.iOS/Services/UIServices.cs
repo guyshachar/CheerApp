@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-//using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using CheerApp;
 using CheerApp.Common;
-using CheerApp.iOS;
 using UIKit;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using Command = CheerApp.Common.Command;
-using DependencyAttribute = Xamarin.Forms.DependencyAttribute;
 
-[assembly: Dependency(typeof(UIServices))]
 namespace CheerApp.iOS
 {
     public class UIServices : IUIServices

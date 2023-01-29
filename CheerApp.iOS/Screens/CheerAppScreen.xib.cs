@@ -31,9 +31,10 @@ namespace CheerApp.iOS
         public CheerAppScreen() : base(nameof(CheerAppScreen), null)
         {
             this.uiServices = DependencyService.Get<IUIServices>();
-            this.Title = "Cheer App by Guy Shachar";
+            this.Title = "יאללה אופק ביטון";
         }
 
+        int y = 0;
         bool viewIsFocused = false;
 
         public override async void ViewWillAppear(bool animated)
@@ -44,6 +45,13 @@ namespace CheerApp.iOS
             var sv = base.View.Subviews.FirstOrDefault();
             if (sv == null)
                 return;
+
+            y += 30;
+            var lbl = new UILabel();
+            lbl.Text = $"guy shachar {DateTime.Now.Ticks}";
+            lbl.TextColor = UIColor.Brown;
+            lbl.Frame = new CoreGraphics.CGRect(20, y, 200, 50);
+            View.Add(lbl);
 
             await InitiatePushHandlersAsync();
         }
