@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Foundation;
-using Plugin.PushNotification;
 using UIKit;
-using Xamarin.Forms;
 
 namespace CheerApp.iOS
 {
@@ -12,9 +6,8 @@ namespace CheerApp.iOS
     {
         static void Main(string[] args)
         {
+            System.Diagnostics.Debug.WriteLine($"{nameof(Application)} {nameof(Main)} Start...");
             UIApplication.Main(args, null, typeof(AppDelegate));
-            //
         }
-
     }
 }

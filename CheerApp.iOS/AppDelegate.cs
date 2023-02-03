@@ -1,65 +1,66 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-using Foundation;
-using UIKit;
-using Xamarin.Forms;
-using Plugin.PushNotification;
-using Xamarin.Forms.Platform.iOS;
-using static SystemConfiguration.NetworkReachability;
-using Notification = CheerApp.Common.Notification;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Xamarin.Essentials;
 using CheerApp.Common;
-using System.Security.Cryptography;
+using CheerApp.iOS.Extensions;
+using CheerApp.iOS.Models;
+using CheerApp.iOS.Implementations;
+using CorePush;
+using CorePush.Apple;
+using CorePush.Google;
+using CorePush.Interfaces;
+using Firebase.CloudMessaging;
+using Foundation;
+using Plugin.PushNotification;
+using UIKit;
+using UserNotifications;
+using Xamarin.Essentials;
+using Xamarin.Forms;
+using Notification = CheerApp.Common.Notification;
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using CorePush.Interfaces.Google;
+using CorePush.Interfaces.Apple;
+using CorePush.Utils;
+using System.Net.Http;
+using CheerApp.iOS.Interfaces;
 
 namespace CheerApp.iOS
 {
     [Register(nameof(AppDelegate))]
-    public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
+    public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate, IUNUserNotificationCenterDelegate, IMessagingDelegate
     {
-        //---- declarations
-        private UIWindow window;
+        public const string TOPIC_ALL = "ALL";
+
+        private IHost Host;
+        private IDbService dbService;
         private static IUIAlertViewDelegate uIAlertViewDelegate = null;
-        private IPushNotificationHandler pushNotificationHandler;
 
         public AppDelegate()
         {
+            System.Diagnostics.Debug.WriteLine($"{nameof(AppDelegate)} Start...");
         }
 
         // This method is invoked when the application has loaded its UI and it is ready to run
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
-            Startup();
-            this.pushNotificationHandler = DependencyService.Get<IPushNotificationHandler>();
+            System.Diagnostics.Debug.WriteLine($"{nameof(AppDelegate)} {nameof(FinishedLaunching)} Start...");
+            Host = new HostBuilder()
+               .ConfigureServices(ConfigureServices)
+               .ConfigureServices(services => services.AddSingleton<Startup>())
+               .Build();
+            var startup = Host.Services
+               .GetService<Startup>();
+            dbService = Host.Services
+               .GetService<IDbService>();
 
-            //global::Xamarin.Forms.Forms.Init();
-            //LoadApplication(new App());
+            System.Diagnostics.Debug.WriteLine($"{nameof(AppDelegate)} {nameof(FinishedLaunching)} After Host build...");
+            startup.Start(this, this, app, options);
+            System.Diagnostics.Debug.WriteLine($"{nameof(AppDelegate)} {nameof(FinishedLaunching)} After Start call...");
 
-            PushNotificationManager.Initialize(options, pushNotificationHandler, true);
-
-            UIApplication.SharedApplication.ApplicationIconBadgeNumber = 0;
-
-            // Handle when your app starts
-            Task.Run(async () => await TokenRefreshAsync(null, new PushNotificationTokenEventArgs(CrossPushNotification.Current.Token)));
-            CrossPushNotification.Current.OnTokenRefresh += async (s, p) => await TokenRefreshAsync(s, p);
-
-            this.window = new UIWindow(UIScreen.MainScreen.Bounds);
-
-            //---- instantiate a new navigation controller
-            var rootNavigationController = new UINavigationController();
-            //---- add the home screen to the navigation controller (it'll be the top most screen)
-            rootNavigationController.PushViewController(DependencyServiceExtension.Get(typeof(HomeScreen)), false);
-
-            //---- set the root view controller on the window. the nav controller will handle the rest
-            this.window.RootViewController = rootNavigationController;
-
-            this.window.MakeKeyAndVisible();
-
-            //return base.FinishedLaunching(app, options);
             return true;
         }
 
@@ -76,11 +77,28 @@ namespace CheerApp.iOS
             var uiServices = DependencyService.Resolve<IUIServices>();
             if (body.Action == "ResetShow")
             {
-                uiServices.ResetShowAsync(uiViewController, body.Json);
+                //uiServices.ResetShowAsync(uiViewController, notification);
             }
 
             // reset our badge
             UIApplication.SharedApplication.ApplicationIconBadgeNumber--;
+        }
+
+        [Export("application:didDidRefreshRegistrationToken:")]
+        public void DidRefreshRegistrationToken(Messaging messaging, string fcmToken)
+        {
+            System.Diagnostics.Debug.WriteLine($"FCM Token: {fcmToken}");
+            dbService.SendDeviceDetailsToServerAsync(fcmToken: fcmToken).GetAwaiter();
+        }
+
+        [Export("messaging:didReceiveRegistrationToken:")]
+        public void DidReceiveRegistrationToken(Messaging messaging, string fcmToken)
+        {
+            Console.WriteLine($"Firebase registration token: {fcmToken}");
+
+            // TODO: If necessary send token to application server.
+            // Note: This callback is fired at each app startup and whenever a new token is generated.
+            dbService.SendDeviceDetailsToServerAsync(fcmToken: fcmToken).GetAwaiter();
         }
 
         /// <summary>
@@ -118,23 +136,22 @@ namespace CheerApp.iOS
         {
         }
 
-        private void Startup()
+        private static void ConfigureServices(HostBuilderContext hostContext, IServiceCollection services)
         {
-            DependencyService.Register<IPushNotificationHandler, PushNotificationHandler>();
-            DependencyService.Register<IUIServices, UIServices>();
-            DependencyServiceExtension.Register<HomeScreen>();
-            DependencyServiceExtension.Register<CheerAppScreen>();
-            DependencyServiceExtension.Register<HelloUniverseScreen>();
-        }
-
-        private async Task TokenRefreshAsync(object s, PushNotificationTokenEventArgs p)
-        {
-            System.Diagnostics.Debug.WriteLine($"TOKEN REC: {p.Token}");
-            var text =
-                $"Name: {DeviceInfo.Name}{System.Environment.NewLine}" +
-                $"Device Token: {p.Token}";
-            await Clipboard.SetTextAsync(text);
-            new UIAlertView("New Device Token", "Please paste new Token to Guy", uIAlertViewDelegate, "OK", null).Show();
+            services.AddSingleton<IJsonHelper, JsonHelper>();
+            services.AddSingleton<IFcmSettings, FcmSettings>();
+            services.AddSingleton<IPushNotificationHandler, PushNotificationHandler>();
+            services.AddSingleton<IUIServices, UIServices>();
+            services.AddSingleton<IApnSettings, ApnSettings>();
+            services.AddSingleton<IFcmSettings, FcmSettings>();
+            services.AddTransient<IApnSender, ApnSender>();
+            services.AddTransient<IFcmSender, FcmSender>();
+            services.AddSingleton<ShowRoom>();
+            services.AddSingleton<SendPushNotification>();
+            services.AddSingleton<HomeScreen>();
+            services.AddSingleton<IRepository<DeviceDetails>, DeviceDetailsRepository>();
+            services.AddSingleton<IRepository<Topic>, TopicRepository>();
+            services.AddSingleton<IDbService, DbService>();
         }
     }
 }

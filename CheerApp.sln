@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheerApp.iOS", "CheerApp.iO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheerApp.Common", "CheerApp.Common\CheerApp.Common.csproj", "{080CEF56-5300-4F44-8FB4-A55D99B5B7FB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CorePush", "CorePush\CorePush.csproj", "{7C05AD91-2345-44B1-966B-5C1A18339A85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|iPhoneSimulator = Debug|iPhoneSimulator
@@ -29,6 +31,14 @@ Global
 		{080CEF56-5300-4F44-8FB4-A55D99B5B7FB}.Debug|iPhone.Build.0 = Debug|Any CPU
 		{080CEF56-5300-4F44-8FB4-A55D99B5B7FB}.Release|iPhone.ActiveCfg = Release|Any CPU
 		{080CEF56-5300-4F44-8FB4-A55D99B5B7FB}.Release|iPhone.Build.0 = Release|Any CPU
+		{7C05AD91-2345-44B1-966B-5C1A18339A85}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{7C05AD91-2345-44B1-966B-5C1A18339A85}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{7C05AD91-2345-44B1-966B-5C1A18339A85}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{7C05AD91-2345-44B1-966B-5C1A18339A85}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{7C05AD91-2345-44B1-966B-5C1A18339A85}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{7C05AD91-2345-44B1-966B-5C1A18339A85}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{7C05AD91-2345-44B1-966B-5C1A18339A85}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{7C05AD91-2345-44B1-966B-5C1A18339A85}.Release|iPhone.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = CheerApp.iOS\CheerApp.iOS.csproj

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace CheerApp.Common
 {
@@ -7,6 +8,8 @@ namespace CheerApp.Common
 		public string ScreenName { get; set; }
 		public string Action { get; set; }
 		public DateTime StartTime { get; set; }
+		[JsonIgnoreAttribute()]
+		public string Title { get; set; }
 		public string Json { get; set; }
 	}
 }
