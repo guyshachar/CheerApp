@@ -1,32 +1,23 @@
 using System;
-using System.Linq;
 using System.Reflection;
-using System.Text.Json;
-using System.Threading.Tasks;
-using CheerApp.Common;
-using CheerApp.iOS.Extensions;
-using CheerApp.iOS.Models;
+using CheerApp.Common.Models;
 using CheerApp.iOS.Implementations;
-using CorePush;
+using CheerApp.iOS.Interfaces;
+using CheerApp.iOS.Models;
 using CorePush.Apple;
 using CorePush.Google;
 using CorePush.Interfaces;
+using CorePush.Interfaces.Apple;
+using CorePush.Interfaces.Google;
+using CorePush.Utils;
 using Firebase.CloudMessaging;
 using Foundation;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Plugin.PushNotification;
 using UIKit;
 using UserNotifications;
-using Xamarin.Essentials;
 using Xamarin.Forms;
-using Notification = CheerApp.Common.Notification;
-using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using CorePush.Interfaces.Google;
-using CorePush.Interfaces.Apple;
-using CorePush.Utils;
-using System.Net.Http;
-using CheerApp.iOS.Interfaces;
 
 namespace CheerApp.iOS
 {
@@ -68,8 +59,8 @@ namespace CheerApp.iOS
         public override void ReceivedLocalNotification(UIApplication application, UILocalNotification notification)
         {
             // show an alert
-            var body = JsonSerializer.Deserialize<Notification>(notification.AlertBody);
-            new UIAlertView(notification.AlertAction, notification.AlertBody, uIAlertViewDelegate, "OK", null).Show();
+            var body = new ShowRoomNotification();
+            //var a = new UIAlertView(notification.AlertAction, body.Body, uIAlertViewDelegate, "OK", null).Show();
             Assembly asm = typeof(AppDelegate).Assembly;
             Type screenType = asm.GetType(body.ScreenName);
             var uiViewController = DependencyServiceExtension.Get(screenType);
@@ -82,23 +73,6 @@ namespace CheerApp.iOS
 
             // reset our badge
             UIApplication.SharedApplication.ApplicationIconBadgeNumber--;
-        }
-
-        [Export("application:didDidRefreshRegistrationToken:")]
-        public void DidRefreshRegistrationToken(Messaging messaging, string fcmToken)
-        {
-            System.Diagnostics.Debug.WriteLine($"FCM Token: {fcmToken}");
-            dbService.SendDeviceDetailsToServerAsync(fcmToken: fcmToken).GetAwaiter();
-        }
-
-        [Export("messaging:didReceiveRegistrationToken:")]
-        public void DidReceiveRegistrationToken(Messaging messaging, string fcmToken)
-        {
-            Console.WriteLine($"Firebase registration token: {fcmToken}");
-
-            // TODO: If necessary send token to application server.
-            // Note: This callback is fired at each app startup and whenever a new token is generated.
-            dbService.SendDeviceDetailsToServerAsync(fcmToken: fcmToken).GetAwaiter();
         }
 
         /// <summary>
@@ -136,7 +110,7 @@ namespace CheerApp.iOS
         {
         }
 
-        private static void ConfigureServices(HostBuilderContext hostContext, IServiceCollection services)
+        private void ConfigureServices(HostBuilderContext hostContext, IServiceCollection services)
         {
             services.AddSingleton<IJsonHelper, JsonHelper>();
             services.AddSingleton<IFcmSettings, FcmSettings>();

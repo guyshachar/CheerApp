@@ -255,35 +255,13 @@
     <Reference Include="JetBrains.Annotations">
       <HintPath>..\packages\JetBrains.Annotations.2022.1.0\lib\netstandard2.0\JetBrains.Annotations.dll</HintPath>
     </Reference>
-    <Reference Include="Fluxera.Guards">
-      <HintPath>..\packages\Fluxera.Guards.6.1.0\lib\netstandard2.1\Fluxera.Guards.dll</HintPath>
-    </Reference>
-    <Reference Include="Fluxera.Utilities">
-      <HintPath>..\packages\Fluxera.Utilities.6.1.1\lib\netstandard2.1\Fluxera.Utilities.dll</HintPath>
-    </Reference>
-    <Reference Include="Fluxera.Extensions.DependencyInjection.Abstractions">
-      <HintPath>..\packages\Fluxera.Extensions.DependencyInjection.Abstractions.6.1.8\lib\netstandard2.1\Fluxera.Extensions.DependencyInjection.Abstractions.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Extensions.FileProviders.Embedded">
       <HintPath>..\packages\Microsoft.Extensions.FileProviders.Embedded.6.0.10\lib\netstandard2.0\Microsoft.Extensions.FileProviders.Embedded.dll</HintPath>
-    </Reference>
-    <Reference Include="Fluxera.Extensions.Hosting.Abstractions">
-      <HintPath>..\packages\Fluxera.Extensions.Hosting.Abstractions.6.2.2\lib\netstandard2.1\Fluxera.Extensions.Hosting.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Fluxera.Extensions.DependencyInjection">
-      <HintPath>..\packages\Fluxera.Extensions.DependencyInjection.6.1.8\lib\netstandard2.1\Fluxera.Extensions.DependencyInjection.dll</HintPath>
-    </Reference>
-    <Reference Include="Fluxera.Extensions.Hosting">
-      <HintPath>..\packages\Fluxera.Extensions.Hosting.6.2.2\lib\netstandard2.1\Fluxera.Extensions.Hosting.dll</HintPath>
-    </Reference>
-    <Reference Include="Fluxera.Extensions.Hosting.Xamarin">
-      <HintPath>..\packages\Fluxera.Extensions.Hosting.Xamarin.6.2.2\lib\netstandard2.1\Fluxera.Extensions.Hosting.Xamarin.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include=".DS_Store" />
-    <None Include="Info.plist" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -360,6 +338,7 @@
     <BundleResource Include="GoogleService-Info.plist" />
     <BundleResource Include="Resources\playstore.png" />
     <BundleResource Include="Resources\appstore.png" />
+    <BundleResource Include="Info.plist" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Screens\ShowRoom.xib" />
@@ -410,6 +389,11 @@
     <ImageAsset Include="Resources\Assets.xcassets\LaunchImage.launchimage\Default-568h%402x.png" />
     <ImageAsset Include="Resources\Assets.xcassets\LaunchImage.launchimage\Contents.json" />
     <ImageAsset Include="Resources\Assets.xcassets\LaunchImage.launchimage\Default.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="json.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="packages\Xamarin.Forms.5.0.0.2545\build\Xamarin.Forms.targets" Condition="Exists('packages\Xamarin.Forms.5.0.0.2545\build\Xamarin.Forms.targets')" />

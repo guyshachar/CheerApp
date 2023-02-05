@@ -20,19 +20,10 @@ namespace CorePush.Google
         [JsonPropertyName("notification")]
         public Notification NotificationBody { get; set; }
 
-        public class Data
-        {
-            [JsonPropertyName("nick")]
-            public string Nick { get; set; }
-
-            [JsonPropertyName("room")]
-            public string Room { get; set; }
-        }
-
         [JsonPropertyName("data")]
-        public Data DataBody { get; set; }
+        public object Data { get; set; }
 
-        public FcmMessage(string fcmToken, string title, string body, string nick = "", string room = "")
+        public FcmMessage(string fcmToken, string title, string body, object data)
         {
             FcmToken = fcmToken;
 
@@ -42,11 +33,7 @@ namespace CorePush.Google
                 Body = body
             };
 
-            DataBody = new Data
-            {
-                Nick = nick,
-                Room = room
-            };
+            Data = data;
         }
     }
 }

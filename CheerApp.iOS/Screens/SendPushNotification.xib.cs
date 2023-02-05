@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using CheerApp.Common;
+using CheerApp.Common.Models;
 using CheerApp.iOS.Models;
 using CorePush.Google;
 using CorePush.Interfaces;
@@ -55,11 +56,11 @@ namespace CheerApp.iOS
         {
             var json = CreateJson();
             this.lblMessageBody.Text = json;
-            var notification = new Notification
+            var notification = new ShowRoomNotification
             {
                 ScreenName = nameof(ShowRoom),
                 Action = "Show",
-                StartTime = DateTime.UtcNow.AddSeconds(5),
+                StartTime = DateTime.UtcNow.AddSeconds(15),
                 Json = json
             };
 
@@ -72,7 +73,7 @@ namespace CheerApp.iOS
                                this.txtMessageTitle.Text);
             */
 
-            var payload = new FcmMessage(deviceDetails.FcmToken, this.txtMessageTitle.Text, JsonSerializer.Serialize(notification));
+            var payload = new FcmMessage(deviceDetails.FcmToken, "New notification from Cheer App", this.txtMessageTitle.Text, notification);
 
             var tasks = new List<Task>();
             var topicIds = (string.IsNullOrEmpty(txtTopics.Text) ? Startup.TOPIC_ALL : txtTopics.Text).Split(',');
@@ -87,11 +88,14 @@ namespace CheerApp.iOS
             foreach (var deviceId in deviceIds.Distinct().Where(x => !string.IsNullOrEmpty(x)))
             {
                 var deviceDetail = await DeviceDetailsRepository.GetAsync(deviceId);
-                if (deviceDetail == null)
+                var fcmToken = deviceDetail?.FcmToken;
+                if (fcmToken == null || fcmToken == "<null>")
                     continue;
                 tasks.Add(FcmSender.SendAsync(deviceDetail.FcmToken, payload, CancellationToken.None));
             };
             var task = Task.WhenAll(tasks);
+
+            //Startup.ShowAlert(this, "Info", $"{tasks.Count} Push Notification(s) sent...", ("OK", UIAlertActionStyle.Default, null));
         }
 
         private static string CreateJson()
@@ -100,16 +104,16 @@ namespace CheerApp.iOS
             var commands = new List<Command>();
             for (var i = 0; i < 30; i++)
             {
-                var t = rnd.Next(1000, 2000);
+                var t = rnd.Next(500, 2000);
                 var f = rnd.Next(2);
                 if (f == 0)
                 {
                     var o = rnd.Next(2);
                     commands.Add(new Command
                     {
-                        SkipTime = t,
                         Feature = FeatureEnum.Flash,
-                        CommandDetails = JsonSerializer.Serialize(o == 1)
+                        CommandDetails = JsonSerializer.Serialize(o == 1),
+                        CommandTime = t
                     });
                 }
                 else
@@ -117,7 +121,7 @@ namespace CheerApp.iOS
                     var c = GetColorRGB();
                     commands.Add(new Command
                     {
-                        SkipTime = t,
+                        CommandTime = t,
                         Feature = FeatureEnum.Screen,
                         CommandDetails = JsonSerializer.Serialize(c)
                     }); ;

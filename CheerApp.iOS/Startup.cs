@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using CheerApp.Common;
+using CheerApp.Common.Models;
 using CheerApp.iOS.Implementations;
 using CheerApp.iOS.Interfaces;
 using CheerApp.iOS.Models;
+using CoreAudioKit;
 using CorePush.Interfaces;
 using Firebase.CloudMessaging;
 using Foundation;
@@ -22,8 +26,8 @@ namespace CheerApp.iOS
     {
         public const string TOPIC_ALL = "ALL";
 
-        private const string APN_BODY = "aps.alert.body";
-        private const string APN_TITLE = "aps.alert.title";
+        public const string APN_BODY = "aps.alert.body";
+        public const string APN_TITLE = "aps.alert.title";
 
         private static IUIAlertViewDelegate uIAlertViewDelegate = null;
         public UIWindow Window { get; private set; }
@@ -38,6 +42,8 @@ namespace CheerApp.iOS
         private readonly HomeScreen HomeScreen;
         private readonly IDbService DbService;
         private readonly IUIServices UIServices;
+
+        private IDictionary<string, CancellationTokenSource> cancellationTokenSources = new Dictionary<string, CancellationTokenSource>();
 
         public static string DeviceId => UIDevice.CurrentDevice.IdentifierForVendor.ToString();
 
@@ -151,6 +157,23 @@ namespace CheerApp.iOS
             });
         }
 
+        [Export("application:didDidRefreshRegistrationToken:")]
+        public void DidRefreshRegistrationToken(Messaging messaging, string fcmToken)
+        {
+            System.Diagnostics.Debug.WriteLine($"FCM Token: {fcmToken}");
+            DbService.SendDeviceDetailsToServerAsync(fcmToken: fcmToken).GetAwaiter();
+        }
+
+        [Export("messaging:didReceiveRegistrationToken:")]
+        public void DidReceiveRegistrationToken(Messaging messaging, string fcmToken)
+        {
+            Console.WriteLine($"Firebase registration token: {fcmToken}");
+
+            // TODO: If necessary send token to application server.
+            // Note: This callback is fired at each app startup and whenever a new token is generated.
+            DbService.SendDeviceDetailsToServerAsync(fcmToken: fcmToken).GetAwaiter();
+        }
+
         private async Task TokenRefreshAsync(object s, PushNotificationTokenEventArgs p)
         {
             await DbService.SendDeviceDetailsToServerAsync(apnToken: p.Token);
@@ -173,29 +196,40 @@ namespace CheerApp.iOS
                 var duration = TimeSpan.FromSeconds(2);
                 Vibration.Vibrate(duration);
 
-                if (p.Data.ContainsKey(APN_BODY))
+                var notification = new CheerAppNotification(p.Data);
+                System.Diagnostics.Debug.WriteLine($"Received: {notification.Body}");
+                if (notification.ScreenName == nameof(ShowRoom) && typeof(ShowRoom).GetInterface(nameof(IScreenActions)) != null)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Received: {p.Data[APN_BODY]}");
-                    var notification = JsonSerializer.Deserialize<Notification>(p.Data[APN_BODY].ToString());
-                    if (p.Data.ContainsKey(APN_TITLE))
-                    {
-                        notification.Title = p.Data[APN_TITLE].ToString();
-                    }
-                    if (notification.ScreenName == nameof(ShowRoom) && typeof(ShowRoom).GetInterface(nameof(IScreenActions)) != null)
-                    {
-                        var showRoom = (UIViewController)ServiceProvider.GetService(typeof(ShowRoom));
-                        var task = Task.Run(() => ((IScreenActions)showRoom).ReceivedNotificationAsync(notification));
+                    var showRoom = (UIViewController)ServiceProvider.GetService(typeof(ShowRoom));
+                    var topViewController = ((UINavigationController)Window.RootViewController).TopViewController;
+                    var cancelToken = false;
+                    if (cancellationTokenSources.ContainsKey(notification.ScreenName))
+                        cancelToken = true;
+                    else
+                        cancellationTokenSources.Add(notification.ScreenName, new CancellationTokenSource());
 
-                        var topViewController = ((UINavigationController)Window.RootViewController).TopViewController;
-                        if (topViewController != null && topViewController != showRoom)
-                            ShowOKCancelAlert("New ShowRoom Notification Arrived",
-                                "Do you want to move to participate ?",
-                                notification,
-                                alert => topViewController.NavigationController.PushViewController(showRoom, false));
+                    if (topViewController != null && topViewController != showRoom)
+                        ShowAlert(
+                            this.Window.RootViewController,
+                            "New ShowRoom Notification Arrived",
+                            "Do you want to play ?",
+                            ("OK", UIAlertActionStyle.Default,
+                                async (alert) =>
+                                {
+                                    if (cancelToken)
+                                        cancellationTokenSources[notification.ScreenName].Cancel();
+                                    topViewController.NavigationController.PushViewController(showRoom, false);
+                                    await ((IScreenActions)showRoom).ReceivedNotificationAsync(notification, cancellationTokenSources[notification.ScreenName].Token);
+                                }
+                        ),
+                            ("Cancel", UIAlertActionStyle.Cancel, null));
+                    else
+                    {
+                        if (cancelToken)
+                            cancellationTokenSources[notification.ScreenName].Cancel();
+                        await ((IScreenActions)showRoom).ReceivedNotificationAsync(notification, cancellationTokenSources[notification.ScreenName].Token);
                     }
                 }
-                else
-                    System.Diagnostics.Debug.WriteLine("Received empty body");
             }
             catch (Exception ex)
             {
@@ -215,22 +249,22 @@ namespace CheerApp.iOS
             });
         }
 
-        public void ShowOKCancelAlert(string title, string description, Notification notification, Action<UIAlertAction> action)
+        public static void ShowAlert(UIViewController viewController, string title, string description, params (string actionName, UIAlertActionStyle alertActionStyle, Action<UIAlertAction> action)[] actions)
         {
             //Create Alert
             var okCancelAlertController = UIAlertController.Create(title, description, UIAlertControllerStyle.Alert);
 
             //Add Actions
-            okCancelAlertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, action));
-            okCancelAlertController.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, alert => Console.WriteLine("Cancel was clicked")));
-
+            foreach (var action in actions)
+                okCancelAlertController.AddAction(UIAlertAction.Create(action.actionName, action.alertActionStyle, action.action));
+  
             //Present Alert
-            this.Window.RootViewController.PresentViewController(okCancelAlertController, true, null);
+            viewController.PresentViewController(okCancelAlertController, true, null);
         }
 
         public static void SetMessageText(object obj, string text)
         {
-            InvokeFromUI(() =>
+            InvokeUIAction(null, () =>
             {
                 if (obj is UILabel)
                     ((UILabel)obj).Text = text;
@@ -239,7 +273,7 @@ namespace CheerApp.iOS
             });
         }
 
-        public static void InvokeFromUI(Action action)
+        public static void InvokeUIAction(UIViewController viewController, Action action)
         {
             Device.BeginInvokeOnMainThread(() => action());
         }

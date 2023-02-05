@@ -22,12 +22,9 @@ namespace CheerApp.iOS.Implementations
             JsonHelper = jsonHelper;
         }
 
-        public async Task PaintScreenAsync(UIViewController viewController, UIColor color)
+        public void PaintScreen(UIViewController viewController, UIColor color)
         {
-            viewController.BeginInvokeOnMainThread(delegate ()
-            {
-                viewController.View.BackgroundColor = color;
-            });
+            Startup.InvokeUIAction(viewController, () => viewController.View.BackgroundColor = color);
         }
 
         public async Task ToggleFlashAsync(bool turnOn)
@@ -52,15 +49,6 @@ namespace CheerApp.iOS.Implementations
                     //await ShowAlert(ex.Message);
                 }
             }
-        }
-
-        public async Task SyncActivityAsync(DateTime startTime)
-        {
-            await Task.Run(() =>
-            {
-                while (startTime > DateTime.UtcNow)
-                { }
-            });
         }
     }
 }
