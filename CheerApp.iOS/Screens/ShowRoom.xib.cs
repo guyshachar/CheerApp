@@ -6,8 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CheerApp.Common;
 using CheerApp.Common.Models;
-using CheerApp.iOS.Interfaces;
-using CheerApp.iOS.Models;
+using CheerApp.Common.Interfaces;
 using CoreAudioKit;
 using CorePush.Google;
 using CorePush.Interfaces;
@@ -16,29 +15,30 @@ using Plugin.PushNotification;
 using UIKit;
 using Xamarin.Forms;
 using Command = CheerApp.Common.Command;
+using CheerApp.Common.Implementations;
 
 namespace CheerApp.iOS
 {
-    public partial class ShowRoom : UIViewController, IScreenActions
+    public partial class ShowRoom : UIViewController, IPageActions
     {
-        private readonly IUIServices UIServices;
-        private readonly IRepository<DeviceDetails> DeviceDetailsRepository;
-        private readonly IDbService DbService;
-        private readonly IJsonHelper JsonHelper;
+        private readonly IUIServices _uiServices;
+        private readonly IFirestoreProvider _firestoreProvider;
+        private readonly IDbService _dbService;
+        private readonly IJsonHelper _jsonHelper;
 
-        private ShowRoomNotification lastNotification;
+        private Message lastMessage;
         private List<CancellationTokenSource> cancellationTokenSources = new List<CancellationTokenSource>();
         //loads the HelloWorldScreen.xib file and connects it to this object
         public ShowRoom(
             IUIServices uIServices,
-            IRepository<DeviceDetails> DeviceDetailsRepository,
+            IFirestoreProvider firestoreProvider,
             IDbService dbService,
             IJsonHelper jsonHelper) : base(nameof(ShowRoom), null)
         {
-            this.UIServices = uIServices;
-            this.DeviceDetailsRepository = DeviceDetailsRepository;
-            this.DbService = dbService;
-            this.JsonHelper = jsonHelper;
+            this._uiServices = uIServices;
+            this._firestoreProvider = firestoreProvider;
+            this._dbService = dbService;
+            this._jsonHelper = jsonHelper;
 
             this.Title = "Cheer App by Guy Shachar";
         }
@@ -52,11 +52,11 @@ namespace CheerApp.iOS
         {
             base.ViewDidAppear(animated);
 
-            if (lastNotification != null && lblMain.Text != lastNotification.Body)
-                Startup.SetMessageText(lblMain, lastNotification.Body);
+            if (lastMessage != null && lblMain.Text != lastMessage.Title)
+                UIServices.SetMessageText(lblMain, lastMessage.Title);
 
-            var deviceDetails = await DeviceDetailsRepository.GetAsync(Startup.DeviceId);
-            this.txtTopics.Text = deviceDetails.Topics;
+            var deviceDetails = await _firestoreProvider.GetAsync<DeviceDetail>(Startup.DeviceId);
+            this.txtTopics.Text = string.Join(",", deviceDetails.Topics);
             this.btnTopics.TouchUpInside += async (sender, e) => await SendAsync(sender, e);
         }
 
@@ -64,7 +64,7 @@ namespace CheerApp.iOS
         {
             base.ViewDidDisappear(animated);
 
-            UIServices.ToggleFlashAsync(false);
+            _uiServices.ToggleFlashAsync(false);
             this.btnTopics.TouchUpInside -= async (sender, e) => await SendAsync(sender, e);
 
             foreach (var cancellationTokenSource in cancellationTokenSources)
@@ -77,12 +77,12 @@ namespace CheerApp.iOS
 
         private async Task SendAsync(object sender, EventArgs e)
         {
-            await DbService.SendDeviceDetailsToServerAsync(topics: txtTopics.Text);
-            Startup.ShowAlert(this, "Info", "Topic updated", ("OK", UIAlertActionStyle.Default, null));
+            await _dbService.SendDeviceDetailsToServerAsync(topics: txtTopics.Text);
+            UIServices.ShowAlert(this, "Info", "Topic updated", ("OK", UIAlertActionStyle.Default, null));
         }
 
         private void CreateLocalNotification()
-        {
+        {/*
             var localNotification = new UILocalNotification();
             //var remoteNotification = new UIRemoteNotificatio
 
@@ -113,11 +113,11 @@ namespace CheerApp.iOS
 
             //---- schedule it
             UIApplication.SharedApplication.ScheduleLocalNotification(localNotification);
-        }
+        */}
 
-        public async Task ReceivedNotificationAsync(CheerAppNotification notification, CancellationToken? cancellationToken = null)
+        public async Task ReceivedNotificationAsync(Message message, CancellationToken? cancellationToken = null)
         {
-            lastNotification = new ShowRoomNotification(notification);
+            lastMessage = message;
             if (!cancellationToken.HasValue)
             {
                 var cancellationTokenSource = new CancellationTokenSource();
@@ -125,19 +125,19 @@ namespace CheerApp.iOS
                 cancellationTokenSources.Add(cancellationTokenSource);
             }
 
-            Startup.SetMessageText(lblMain, lastNotification.Body);
-            await PlayShowRoomAsync(lastNotification, cancellationToken);
+            UIServices.SetMessageText(lblMain, lastMessage.Title);
+            await PlayShowRoomAsync(lastMessage, cancellationToken);
         }
 
-        private async Task PlayShowRoomAsync(ShowRoomNotification notification, CancellationToken? cancellationToken = null)
+        private async Task PlayShowRoomAsync(Message message, CancellationToken? cancellationToken = null)
         {
             try
             {
-                notification.Json = "[{\"FE\":0,\"CD\":\"false\",\"CT\":871},{\"FE\":0,\"CD\":\"true\",\"CT\":1934},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:57,\\u0022G\\u0022:245,\\u0022B\\u0022:8}\",\"CT\":1616},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:184,\\u0022G\\u0022:26,\\u0022B\\u0022:225}\",\"CT\":1180},{\"FE\":0,\"CD\":\"false\",\"CT\":1121},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:37,\\u0022G\\u0022:118,\\u0022B\\u0022:232}\",\"CT\":1028},{\"FE\":0,\"CD\":\"false\",\"CT\":897},{\"FE\":0,\"CD\":\"true\",\"CT\":1885},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:42,\\u0022G\\u0022:253,\\u0022B\\u0022:186}\",\"CT\":1738},{\"FE\":0,\"CD\":\"false\",\"CT\":1044},{\"FE\":0,\"CD\":\"true\",\"CT\":832},{\"FE\":0,\"CD\":\"true\",\"CT\":1060},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:183,\\u0022G\\u0022:16,\\u0022B\\u0022:114}\",\"CT\":1461},{\"FE\":0,\"CD\":\"false\",\"CT\":1449},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:5,\\u0022G\\u0022:25,\\u0022B\\u0022:239}\",\"CT\":1728},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:37,\\u0022G\\u0022:112,\\u0022B\\u0022:209}\",\"CT\":1149},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:34,\\u0022G\\u0022:23,\\u0022B\\u0022:73}\",\"CT\":1261},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:188,\\u0022G\\u0022:163,\\u0022B\\u0022:39}\",\"CT\":1273},{\"FE\":0,\"CD\":\"true\",\"CT\":1935},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:246,\\u0022G\\u0022:68,\\u0022B\\u0022:175}\",\"CT\":1155},{\"FE\":0,\"CD\":\"false\",\"CT\":1364},{\"FE\":0,\"CD\":\"true\",\"CT\":1782},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:248,\\u0022G\\u0022:160,\\u0022B\\u0022:108}\",\"CT\":685},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:18,\\u0022G\\u0022:169,\\u0022B\\u0022:241}\",\"CT\":1718},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:92,\\u0022G\\u0022:140,\\u0022B\\u0022:73}\",\"CT\":1798},{\"FE\":0,\"CD\":\"true\",\"CT\":805},{\"FE\":0,\"CD\":\"false\",\"CT\":1988},{\"FE\":0,\"CD\":\"true\",\"CT\":1176},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:41,\\u0022G\\u0022:0,\\u0022B\\u0022:145}\",\"CT\":1068},{\"FE\":0,\"CD\":\"true\",\"CT\":544}]";
-                string jsonShow = notification.Json;
-                var commands = JsonHelper.Deserialize<IEnumerable<Command>>(jsonShow);
+                message.Json = "[{\"FE\":0,\"CD\":\"false\",\"CT\":871},{\"FE\":0,\"CD\":\"true\",\"CT\":1934},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:57,\\u0022G\\u0022:245,\\u0022B\\u0022:8}\",\"CT\":1616},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:184,\\u0022G\\u0022:26,\\u0022B\\u0022:225}\",\"CT\":1180},{\"FE\":0,\"CD\":\"false\",\"CT\":1121},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:37,\\u0022G\\u0022:118,\\u0022B\\u0022:232}\",\"CT\":1028},{\"FE\":0,\"CD\":\"false\",\"CT\":897},{\"FE\":0,\"CD\":\"true\",\"CT\":1885},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:42,\\u0022G\\u0022:253,\\u0022B\\u0022:186}\",\"CT\":1738},{\"FE\":0,\"CD\":\"false\",\"CT\":1044},{\"FE\":0,\"CD\":\"true\",\"CT\":832},{\"FE\":0,\"CD\":\"true\",\"CT\":1060},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:183,\\u0022G\\u0022:16,\\u0022B\\u0022:114}\",\"CT\":1461},{\"FE\":0,\"CD\":\"false\",\"CT\":1449},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:5,\\u0022G\\u0022:25,\\u0022B\\u0022:239}\",\"CT\":1728},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:37,\\u0022G\\u0022:112,\\u0022B\\u0022:209}\",\"CT\":1149},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:34,\\u0022G\\u0022:23,\\u0022B\\u0022:73}\",\"CT\":1261},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:188,\\u0022G\\u0022:163,\\u0022B\\u0022:39}\",\"CT\":1273},{\"FE\":0,\"CD\":\"true\",\"CT\":1935},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:246,\\u0022G\\u0022:68,\\u0022B\\u0022:175}\",\"CT\":1155},{\"FE\":0,\"CD\":\"false\",\"CT\":1364},{\"FE\":0,\"CD\":\"true\",\"CT\":1782},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:248,\\u0022G\\u0022:160,\\u0022B\\u0022:108}\",\"CT\":685},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:18,\\u0022G\\u0022:169,\\u0022B\\u0022:241}\",\"CT\":1718},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:92,\\u0022G\\u0022:140,\\u0022B\\u0022:73}\",\"CT\":1798},{\"FE\":0,\"CD\":\"true\",\"CT\":805},{\"FE\":0,\"CD\":\"false\",\"CT\":1988},{\"FE\":0,\"CD\":\"true\",\"CT\":1176},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:41,\\u0022G\\u0022:0,\\u0022B\\u0022:145}\",\"CT\":1068},{\"FE\":0,\"CD\":\"true\",\"CT\":544}]";
+                string jsonShow = message.Json;
+                var commands = _jsonHelper.Deserialize<IEnumerable<Command>>(jsonShow);
 
-                var timeInShow = notification.StartTime;
+                var timeInShow = DateTime.Parse(message.StartTime).ToUniversalTime();
 
                 foreach (var command in commands)
                 {
@@ -153,13 +153,13 @@ namespace CheerApp.iOS
                     switch (command.Feature)
                     {
                         case FeatureEnum.Flash:
-                            var onOff = JsonHelper.Deserialize<bool>(command.CommandDetails);
-                            await UIServices.ToggleFlashAsync(onOff);
+                            var onOff = _jsonHelper.Deserialize<bool>(command.CommandDetails);
+                            await _uiServices.ToggleFlashAsync(onOff);
                             break;
                         case FeatureEnum.Screen:
-                            var rgb = JsonHelper.Deserialize<RGB>(command.CommandDetails);
+                            var rgb = _jsonHelper.Deserialize<RGB>(command.CommandDetails);
                             var color = UIColor.FromRGB(rgb.R, rgb.G, rgb.B);
-                            UIServices.PaintScreen(this, color);
+                            _uiServices.PaintScreen(this, color);
                             break;
                         default:
                             break;

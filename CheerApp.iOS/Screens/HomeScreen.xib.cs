@@ -1,25 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using CheerApp.iOS.Extensions;
-using CheerApp.iOS.Interfaces;
-using CheerApp.iOS.Models;
-using Foundation;
 using UIKit;
 
 namespace CheerApp.iOS
 {
 	public partial class HomeScreen : UIViewController
 	{
-		private readonly ShowRoom ShowRoom;
-		private readonly SendPushNotification SendPushNotification;
+		private readonly ShowRoom _showRoom;
+		private readonly SendPushNotification _sendPushNotification;
 
 		//loads the HomeScreen.xib file and connects it to this object
 		public HomeScreen(ShowRoom showRoom, SendPushNotification sendPushNotification)
 			: base(nameof(HomeScreen), null)
 		{
-			ShowRoom = showRoom;
-			SendPushNotification = sendPushNotification;
+			_showRoom = showRoom;
+			_sendPushNotification = sendPushNotification;
         }
 
         public override void ViewDidLoad()
@@ -32,13 +25,13 @@ namespace CheerApp.iOS
 				//---- instantiate a new hello world screen, if it's null (it may not be null if they've navigated
 				// backwards from it
 				//---- push our hello world screen onto the navigation controller and pass a true so it navigates
-				this.NavigationController.PushViewController(ShowRoom, true);
+				this.NavigationController.PushViewController(_showRoom, true);
 			};
 
 			//---- same thing, but for the hello universe screen
 			this.btnSendPush.TouchUpInside += (sender, e) =>
 			{
-				this.NavigationController.PushViewController(SendPushNotification, true);
+				this.NavigationController.PushViewController(_sendPushNotification, true);
 			};
 		}
 

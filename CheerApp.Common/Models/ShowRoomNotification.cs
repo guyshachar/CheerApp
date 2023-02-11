@@ -8,8 +8,8 @@ namespace CheerApp.Common.Models
         {
         }
 
-        public ShowRoomNotification(CheerAppNotification cheerAppNotification) :
-            base(cheerAppNotification.NotificationData)
+        public ShowRoomNotification(Message message) :
+            base(message.Json)
         {
         }
 

@@ -1,9 +1,6 @@
-using CheerApp.iOS.Implementations;
 using CorePush.Interfaces.Apple;
-using DependencyAttribute = Xamarin.Forms.DependencyAttribute;
 
-[assembly: Dependency(typeof(ApnSettings))]
-namespace CheerApp.iOS.Implementations
+namespace CheerApp.Common.Implementations
 {
     public class ApnSettings : IApnSettings
     {

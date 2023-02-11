@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Firebase.CloudFirestore;
 using Foundation;
+using Google.Cloud.Firestore;
 
 namespace CheerApp.iOS.Extensions
 {
     public static class FirestoreExtension
     {
+        /*
         // ToDo: Support more types...
         // https://firebase.google.com/docs/firestore/manage-data/data-types
         // ToDo: Add interface to add custom types
@@ -224,5 +225,16 @@ namespace CheerApp.iOS.Extensions
         }
 
         // ToDo: Add QueryReference
+    }
+*/
+        public static Dictionary<string, object> ToDictionary<T>(this T model)
+        {
+            return typeof(T).GetProperties()
+                .Where(prop => Attribute.IsDefined(prop, typeof(FirestorePropertyAttribute)))
+                .ToDictionary(
+                    prop => prop.Name,
+                    prop => prop.GetValue(model, null)
+                );
+        }
     }
 }

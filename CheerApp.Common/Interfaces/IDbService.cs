@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
-using CheerApp.iOS.Models;
 
-namespace CheerApp.iOS.Interfaces
+namespace CheerApp.Common.Interfaces
 {
     public interface IDbService
     {

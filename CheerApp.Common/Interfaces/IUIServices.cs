@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using CheerApp.Common;
 using UIKit;
 
-namespace CheerApp.iOS.Interfaces
+namespace CheerApp.Common.Interfaces
 {
 	public interface IUIServices
 	{

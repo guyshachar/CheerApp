@@ -5,35 +5,33 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using CheerApp.Common;
+using CheerApp.Common.Implementations;
+using CheerApp.Common.Interfaces;
 using CheerApp.Common.Models;
-using CheerApp.iOS.Models;
 using CorePush.Google;
-using CorePush.Interfaces;
 using CorePush.Interfaces.Apple;
 using CorePush.Interfaces.Google;
 using UIKit;
+using Xamarin.Forms;
 using Command = CheerApp.Common.Command;
 
 namespace CheerApp.iOS
 {
     public partial class SendPushNotification : UIViewController
     {
-        private readonly IRepository<DeviceDetails> DeviceDetailsRepository;
-        private readonly IRepository<Topic> TopicRepository;
-        private readonly IApnSender ApnSender;
-        private readonly IFcmSender FcmSender;
+        private readonly IFirestoreProvider _firestoreProvider;
+        private readonly IApnSender _apnSender;
+        private readonly IFcmSender _fcmSender;
         
         //loads the HelloUniverseScreen.xib file and connects it to this object
         public SendPushNotification(
-            IRepository<DeviceDetails> deviceDetailsRepository,
-            IRepository<Topic> topicRepository,
+            IFirestoreProvider firestoreProvider,
             IApnSender apnSender,
             IFcmSender fcmSender) : base(nameof(SendPushNotification), null)
         {
-            DeviceDetailsRepository = deviceDetailsRepository;
-            TopicRepository = topicRepository;
-            ApnSender = apnSender;
-            FcmSender = fcmSender;
+            _firestoreProvider = firestoreProvider;
+            _apnSender = apnSender;
+            _fcmSender = fcmSender;
 
             this.Title = "Send Push Notification";
         }
@@ -56,46 +54,48 @@ namespace CheerApp.iOS
         {
             var json = CreateJson();
             this.lblMessageBody.Text = json;
-            var notification = new ShowRoomNotification
+
+            var message = new Message
             {
-                ScreenName = nameof(ShowRoom),
-                Action = "Show",
-                StartTime = DateTime.UtcNow.AddSeconds(15),
+                Title = txtMessageTitle.Text,
+                Page = nameof(ShowRoom),
+                Action = "Play",
+                StartTime = DateTime.UtcNow.AddSeconds(15).ToString("U"),
                 Json = json
             };
 
-            var deviceDetails = await DeviceDetailsRepository.GetAsync(Startup.DeviceId);
+            await _firestoreProvider.AddUpdateAsync(message);
 
-            /*
-             * var payload = new AppleNotification(
-                               Guid.NewGuid(),
-                               JsonSerializer.Serialize(notification),
-                               this.txtMessageTitle.Text);
-            */
+            var deviceDetails = await _firestoreProvider.GetAsync<DeviceDetail>(Startup.DeviceId);
 
-            var payload = new FcmMessage(deviceDetails.FcmToken, "New notification from Cheer App", this.txtMessageTitle.Text, notification);
+            //var payload = new FcmMessage(deviceDetails.FcmToken, "New notification from Cheer App", this.txtMessageTitle.Text, notification);
 
             var tasks = new List<Task>();
-            var topicIds = (string.IsNullOrEmpty(txtTopics.Text) ? Startup.TOPIC_ALL : txtTopics.Text).Split(',');
+            var topicIds = (string.IsNullOrEmpty(txtTopics.Text) ? Startup.TOPIC_ALL : txtTopics.Text).Split(',').ToList();
             var deviceIds = new List<string>();
             foreach (var topicId in topicIds)
             {
-                var topic = await TopicRepository.GetAsync(topicId);
+                var topic = await _firestoreProvider.GetAsync<Topic>(topicId);
                 if (topic == null)
                     continue;
-                deviceIds.AddRange(topic.DeviceIds.Split(','));
+                deviceIds.AddRange(topic.DeviceIds);
             }
-            foreach (var deviceId in deviceIds.Distinct().Where(x => !string.IsNullOrEmpty(x)))
+            deviceIds = deviceIds.Distinct().Where(x => !string.IsNullOrEmpty(x)).ToList();
+            foreach (var deviceId in deviceIds)
             {
-                var deviceDetail = await DeviceDetailsRepository.GetAsync(deviceId);
-                var fcmToken = deviceDetail?.FcmToken;
-                if (fcmToken == null || fcmToken == "<null>")
+                var deviceDetail = await _firestoreProvider.GetAsync<DeviceDetail>(deviceId);
+                deviceDetail.MessageIds.Add(message.Id);
+                if (deviceDetail == null)
                     continue;
-                tasks.Add(FcmSender.SendAsync(deviceDetail.FcmToken, payload, CancellationToken.None));
+                //var fcmToken = deviceDetail?.FcmToken;
+                //if (fcmToken == null || fcmToken == "<null>")
+                //    continue;
+                //tasks.Add(_fcmSender.SendAsync(deviceDetail.FcmToken, payload, CancellationToken.None));
+                tasks.Add(_firestoreProvider.AddUpdateAsync(deviceDetail));
             };
             var task = Task.WhenAll(tasks);
 
-            //Startup.ShowAlert(this, "Info", $"{tasks.Count} Push Notification(s) sent...", ("OK", UIAlertActionStyle.Default, null));
+            UIServices.ShowAlert(this, "Info", $"Message sent to {tasks.Count} Devices", ("OK", UIAlertActionStyle.Default, null));
         }
 
         private static string CreateJson()

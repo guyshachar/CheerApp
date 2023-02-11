@@ -1,15 +1,9 @@
 using System;
 using System.Reflection;
+using CheerApp.Common;
+using CheerApp.Common.Interfaces;
 using CheerApp.Common.Models;
 using CheerApp.iOS.Implementations;
-using CheerApp.iOS.Interfaces;
-using CheerApp.iOS.Models;
-using CorePush.Apple;
-using CorePush.Google;
-using CorePush.Interfaces;
-using CorePush.Interfaces.Apple;
-using CorePush.Interfaces.Google;
-using CorePush.Utils;
 using Firebase.CloudMessaging;
 using Foundation;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,17 +33,23 @@ namespace CheerApp.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             System.Diagnostics.Debug.WriteLine($"{nameof(AppDelegate)} {nameof(FinishedLaunching)} Start...");
-            Host = new HostBuilder()
-               .ConfigureServices(ConfigureServices)
-               .ConfigureServices(services => services.AddSingleton<Startup>())
-               .Build();
-            var startup = Host.Services
-               .GetService<Startup>();
+            Host = Startup.Start((context, serviceCollection)
+                =>
+            {
+                serviceCollection.AddSingleton<IFirestoreProvider, FirestoreProvider>();
+                serviceCollection.AddSingleton<HomeScreen>();
+                serviceCollection.AddSingleton<ShowRoom>();
+                serviceCollection.AddSingleton<SendPushNotification>();
+                serviceCollection.AddSingleton<IPushHandler, PushHandler>();
+                serviceCollection.AddSingleton<IPushNotificationHandler, PushNotificationHandler>();
+            }, typeof(HomeScreen), this, app, options);
+
             dbService = Host.Services
                .GetService<IDbService>();
 
+            Xamarin.Forms.Forms.Init();
+
             System.Diagnostics.Debug.WriteLine($"{nameof(AppDelegate)} {nameof(FinishedLaunching)} After Host build...");
-            startup.Start(this, this, app, options);
             System.Diagnostics.Debug.WriteLine($"{nameof(AppDelegate)} {nameof(FinishedLaunching)} After Start call...");
 
             return true;
@@ -57,13 +57,13 @@ namespace CheerApp.iOS
 
         [Export("application:didReceiveLocalNotification:")]
         public override void ReceivedLocalNotification(UIApplication application, UILocalNotification notification)
-        {
+        {/*
             // show an alert
             var body = new ShowRoomNotification();
             //var a = new UIAlertView(notification.AlertAction, body.Body, uIAlertViewDelegate, "OK", null).Show();
             Assembly asm = typeof(AppDelegate).Assembly;
             Type screenType = asm.GetType(body.ScreenName);
-            var uiViewController = DependencyServiceExtension.Get(screenType);
+            //var uiViewController = DependencyServiceExtension.Get(screenType);
 
             var uiServices = DependencyService.Resolve<IUIServices>();
             if (body.Action == "ResetShow")
@@ -73,7 +73,7 @@ namespace CheerApp.iOS
 
             // reset our badge
             UIApplication.SharedApplication.ApplicationIconBadgeNumber--;
-        }
+        */}
 
         /// <summary>
         /// The iOS will call the APNS in the background and issue a device token to the device. when that's
@@ -108,24 +108,6 @@ namespace CheerApp.iOS
 
         public override void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
         {
-        }
-
-        private void ConfigureServices(HostBuilderContext hostContext, IServiceCollection services)
-        {
-            services.AddSingleton<IJsonHelper, JsonHelper>();
-            services.AddSingleton<IFcmSettings, FcmSettings>();
-            services.AddSingleton<IPushNotificationHandler, PushNotificationHandler>();
-            services.AddSingleton<IUIServices, UIServices>();
-            services.AddSingleton<IApnSettings, ApnSettings>();
-            services.AddSingleton<IFcmSettings, FcmSettings>();
-            services.AddTransient<IApnSender, ApnSender>();
-            services.AddTransient<IFcmSender, FcmSender>();
-            services.AddSingleton<ShowRoom>();
-            services.AddSingleton<SendPushNotification>();
-            services.AddSingleton<HomeScreen>();
-            services.AddSingleton<IRepository<DeviceDetails>, DeviceDetailsRepository>();
-            services.AddSingleton<IRepository<Topic>, TopicRepository>();
-            services.AddSingleton<IDbService, DbService>();
         }
     }
 }

@@ -9,16 +9,43 @@
         <PackageReference Include="Xamarin.Forms" Version="5.0.0.2545" />
         <PackageReference Include="Plugin.PushNotification" Version="3.6.9" />
         <PackageReference Include="System.Text.Json" Version="7.0.1" />
+        <PackageReference Include="Google.Cloud.Firestore" Version="3.1.0" />
+        <PackageReference Include="Xamarin.Essentials" Version="1.7.4" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
     </ItemGroup>
     <ItemGroup>
       <None Remove="Models\" />
       <None Remove="System.Text.Json" />
       <None Remove="West.Extensions.Hosting.XamarinForms" />
+      <None Remove="Extensions\" />
+      <None Remove="Implementations\" />
+      <None Remove="Interfaces\" />
+      <None Remove="Google.Cloud.Storage.V1" />
+      <None Remove="Google.Cloud.Firestore" />
+      <None Remove="Xamarin.iOS" />
+      <None Remove="Xamarin.Essentials" />
+      <None Remove="Microsoft.Extensions.DependencyInjection" />
+      <None Remove="Microsoft.Extensions.Hosting" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Models\" />
+      <Folder Include="Extensions\" />
+      <Folder Include="Implementations\" />
+      <Folder Include="Interfaces\" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\CorePush\CorePush.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="Xamarin.iOS">
+        <HintPath>..\..\..\..\..\Library\Frameworks\Xamarin.iOS.framework\Versions\16.1.1.27\lib\mono\Xamarin.iOS\Xamarin.iOS.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Extensions\DependencyServiceExtension.cs" />
+      <Compile Remove="Interfaces\IModel.cs" />
+      <Compile Remove="Models\ShowRoomNotification.cs" />
+      <Compile Remove="Models\CheerAppNotification.cs" />
     </ItemGroup>
 </Project>

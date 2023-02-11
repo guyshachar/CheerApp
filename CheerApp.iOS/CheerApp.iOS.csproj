@@ -145,7 +145,7 @@
       <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Google.Api.Gax">
-      <HintPath>..\packages\Google.Api.Gax.4.3.0\lib\netstandard2.1\Google.Api.Gax.dll</HintPath>
+      <HintPath>..\packages\Google.Api.Gax.4.3.1\lib\netstandard2.1\Google.Api.Gax.dll</HintPath>
     </Reference>
     <Reference Include="Google.Apis.Core">
       <HintPath>..\packages\Google.Apis.Core.1.59.0\lib\netstandard2.0\Google.Apis.Core.dll</HintPath>
@@ -163,7 +163,7 @@
       <HintPath>..\packages\Google.Api.Gax.Rest.3.2.0\lib\netstandard2.0\Google.Api.Gax.Rest.dll</HintPath>
     </Reference>
     <Reference Include="System.Collections.Immutable">
-      <HintPath>..\packages\System.Collections.Immutable.1.7.1\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
+      <HintPath>..\packages\System.Collections.Immutable.6.0.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="Firebase.CloudFirestore">
       <HintPath>..\packages\Xamarin.Firebase.iOS.CloudFirestore.8.10.0.3\lib\xamarinios10\Firebase.CloudFirestore.dll</HintPath>
@@ -258,6 +258,42 @@
     <Reference Include="Microsoft.Extensions.FileProviders.Embedded">
       <HintPath>..\packages\Microsoft.Extensions.FileProviders.Embedded.6.0.10\lib\netstandard2.0\Microsoft.Extensions.FileProviders.Embedded.dll</HintPath>
     </Reference>
+    <Reference Include="System.Linq.Async">
+      <HintPath>..\packages\System.Linq.Async.6.0.1\lib\netstandard2.1\System.Linq.Async.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Protobuf">
+      <HintPath>..\packages\Google.Protobuf.3.21.0\lib\netstandard2.0\Google.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Api.CommonProtos">
+      <HintPath>..\packages\Google.Api.CommonProtos.2.7.0\lib\netstandard2.0\Google.Api.CommonProtos.dll</HintPath>
+    </Reference>
+    <Reference Include="Grpc.Core.Api">
+      <HintPath>..\packages\Grpc.Core.Api.2.51.0\lib\netstandard2.1\Grpc.Core.Api.dll</HintPath>
+    </Reference>
+    <Reference Include="Grpc.Auth">
+      <HintPath>..\packages\Grpc.Auth.2.51.0\lib\netstandard2.0\Grpc.Auth.dll</HintPath>
+    </Reference>
+    <Reference Include="Grpc.Net.Common">
+      <HintPath>..\packages\Grpc.Net.Common.2.51.0\lib\netstandard2.1\Grpc.Net.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Grpc.Net.Client">
+      <HintPath>..\packages\Grpc.Net.Client.2.51.0\lib\netstandard2.1\Grpc.Net.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Api.Gax.Grpc">
+      <HintPath>..\packages\Google.Api.Gax.Grpc.4.3.1\lib\netstandard2.1\Google.Api.Gax.Grpc.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Cloud.Location">
+      <HintPath>..\packages\Google.Cloud.Location.2.0.0\lib\netstandard2.1\Google.Cloud.Location.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.LongRunning">
+      <HintPath>..\packages\Google.LongRunning.3.0.0\lib\netstandard2.1\Google.LongRunning.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Cloud.Firestore.V1">
+      <HintPath>..\packages\Google.Cloud.Firestore.V1.3.1.0\lib\netstandard2.1\Google.Cloud.Firestore.V1.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Cloud.Firestore">
+      <HintPath>..\packages\Google.Cloud.Firestore.3.1.0\lib\netstandard2.1\Google.Cloud.Firestore.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -284,33 +320,16 @@
     <Compile Include="Screens\HomeScreen.xib.designer.cs">
       <DependentUpon>HomeScreen.xib</DependentUpon>
     </Compile>
-    <Compile Include="Interfaces\IUIServices.cs" />
-    <Compile Include="Implementations\UIServices.cs" />
-    <Compile Include="Extensions\DependencyServiceExtension.cs" />
-    <Compile Include="Implementations\PushNotificationHandler.cs" />
-    <Compile Include="Implementations\ApnSettings.cs" />
-    <Compile Include="Implementations\FcmSettings.cs" />
-    <Compile Include="Extensions\FirestoreExtension.cs" />
-    <Compile Include="Implementations\FirestoreService.cs" />
     <Compile Include="DeviceDetails.cs" Condition=" '$(EnableDefaultCompileItems)' == 'true' " />
-    <Compile Include="Models\DeviceDetails.cs" />
-    <Compile Include="Implementations\Repository.cs" />
-    <Compile Include="Implementations\DeviceDetailsRepository.cs" />
-    <Compile Include="Implementations\TopicsRepository.cs" />
-    <Compile Include="Models\Topic.cs" />
-    <Compile Include="Interfaces\IModel.cs" />
-    <Compile Include="Startup.cs" />
-    <Compile Include="Implementations\DbService.cs" />
-    <Compile Include="Interfaces\IDbService.cs" />
-    <Compile Include="Interfaces\IScreenActions.cs" />
+    <Compile Include="Implementations\FirestoreProvider.cs" />
+    <Compile Include="Implementations\PushHandler.cs" />
+    <Compile Include="Implementations\PushNotificationHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Screens\" />
     <Folder Include="Resources\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Implementations\" />
-    <Folder Include="Extensions\" />
     <Folder Include="Models\" />
+    <Folder Include="Implementations\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
