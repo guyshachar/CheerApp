@@ -7,6 +7,6 @@ namespace CheerApp.Common.Interfaces
     {
 		void Start(params object[] pushHandlerHandlerParameters);
 
-        Task HandleUpdatedDocumentAsync<T>(T obj) where T : ModelBase;
+        Task HandleUpdatedDocumentAsync<T>(T obj) where T : MessagesConsumerModelBase;
     }
 }

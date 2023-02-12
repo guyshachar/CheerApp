@@ -16,6 +16,7 @@ using UIKit;
 using Xamarin.Forms;
 using Command = CheerApp.Common.Command;
 using CheerApp.Common.Implementations;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CheerApp.iOS
 {
@@ -27,7 +28,8 @@ namespace CheerApp.iOS
         private readonly IJsonHelper _jsonHelper;
 
         private Message lastMessage;
-        private List<CancellationTokenSource> cancellationTokenSources = new List<CancellationTokenSource>();
+        public List<CancellationTokenSource> CancellationTokenSources { get; set; } = new List<CancellationTokenSource>();
+
         //loads the HelloWorldScreen.xib file and connects it to this object
         public ShowRoom(
             IUIServices uIServices,
@@ -67,12 +69,17 @@ namespace CheerApp.iOS
             _uiServices.ToggleFlashAsync(false);
             this.btnTopics.TouchUpInside -= async (sender, e) => await SendAsync(sender, e);
 
-            foreach (var cancellationTokenSource in cancellationTokenSources)
+            CancelTokens();
+        }
+
+        private void CancelTokens()
+        {
+            foreach (var cancellationTokenSource in CancellationTokenSources)
             {
                 cancellationTokenSource.Cancel();
                 cancellationTokenSource.Dispose();
             }
-            cancellationTokenSources.Clear();
+            CancellationTokenSources.Clear();
         }
 
         private async Task SendAsync(object sender, EventArgs e)
@@ -115,18 +122,37 @@ namespace CheerApp.iOS
             UIApplication.SharedApplication.ScheduleLocalNotification(localNotification);
         */}
 
-        public async Task ReceivedNotificationAsync(Message message, CancellationToken? cancellationToken = null)
+        public async Task ReceivedMessageAsync(Message message)
         {
             lastMessage = message;
-            if (!cancellationToken.HasValue)
-            {
-                var cancellationTokenSource = new CancellationTokenSource();
-                cancellationToken = cancellationTokenSource.Token;
-                cancellationTokenSources.Add(cancellationTokenSource);
-            }
-
+   
             UIServices.SetMessageText(lblMain, lastMessage.Title);
-            await PlayShowRoomAsync(lastMessage, cancellationToken);
+
+            var showRoom = this;
+            var topViewController = ((UINavigationController)Startup.Window.RootViewController).TopViewController;
+            var cancellationTokenSource = new CancellationTokenSource();
+
+            if (topViewController != null && topViewController != showRoom)
+                UIServices.ShowAlert(
+                    Startup.Window.RootViewController,
+                    "New ShowRoom message arrived",
+                    "Do you want to participate ?",
+                    ("OK", UIAlertActionStyle.Default,
+                        async (alert) =>
+                        {
+                            CancelTokens();
+                            CancellationTokenSources.Add(cancellationTokenSource);
+                            topViewController.NavigationController.PushViewController(showRoom, false);
+                            await PlayShowRoomAsync(lastMessage, cancellationTokenSource.Token);
+                        }
+                ),
+                    ("Cancel", UIAlertActionStyle.Cancel, null));
+            else
+            {
+                CancelTokens();
+                CancellationTokenSources.Add(cancellationTokenSource);
+                await PlayShowRoomAsync(lastMessage, cancellationTokenSource.Token);
+            }
         }
 
         private async Task PlayShowRoomAsync(Message message, CancellationToken? cancellationToken = null)

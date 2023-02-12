@@ -6,7 +6,7 @@ using Google.Cloud.Firestore;
 namespace CheerApp.Common.Models
 {
     [FirestoreData]
-    public class DeviceDetail : ModelBase
+    public class DeviceDetail : MessagesConsumerModelBase
     {
         public DeviceDetail() : base()
         {
@@ -31,9 +31,7 @@ namespace CheerApp.Common.Models
         [FirestoreProperty]
         public string FcmToken { get; set; }
         [FirestoreProperty]
-        public List<string> Topics { get; set; }
-        [FirestoreProperty]
-        public List<string> MessageIds { get; set; }
+        public List<string> Topics { get; set; } = new List<string>();
 
         public static DeviceDetail Init(string id)
         {
@@ -41,7 +39,6 @@ namespace CheerApp.Common.Models
             {
                 Id = id,
                 Topics = new List<string> { "ALL" },
-                MessageIds = new List<string>()
             };
 
             return deviceDetail;

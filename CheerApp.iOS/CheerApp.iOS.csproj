@@ -328,7 +328,6 @@
   <ItemGroup>
     <Folder Include="Screens\" />
     <Folder Include="Resources\" />
-    <Folder Include="Models\" />
     <Folder Include="Implementations\" />
   </ItemGroup>
   <ProjectExtensions>

@@ -16,7 +16,7 @@ using System.Linq;
 
 namespace CheerApp.iOS.Implementations
 {
-    public class PushHandler: IPushHandler
+    public class PushHandler : IPushHandler
     {
         public const string APN_BODY = "aps.alert.body";
         public const string APN_TITLE = "aps.alert.title";
@@ -62,7 +62,7 @@ namespace CheerApp.iOS.Implementations
             _options = (NSDictionary)messageHandlerParameters[2];
 
             System.Diagnostics.Debug.WriteLine($"{nameof(PushHandler)} {nameof(Start)} Before Forms Init...");
-     
+
             PushNotificationManager.Initialize(_options, _pushNotificationHandler, true);
             Messaging.SharedInstance.Delegate = _messagingDelegate;
             UIApplication.SharedApplication.RegisterForRemoteNotifications();
@@ -90,7 +90,7 @@ namespace CheerApp.iOS.Implementations
             UIApplication.SharedApplication.RegisterForRemoteNotifications();
             UIApplication.SharedApplication.ApplicationIconBadgeNumber = 0;
 
-    
+
             InitiatePushHandlers();
             System.Diagnostics.Debug.WriteLine($"{nameof(PushHandler)} {nameof(Start)} End...");
         }
@@ -126,21 +126,26 @@ namespace CheerApp.iOS.Implementations
             _dbService.SendDeviceDetailsToServerAsync(fcmToken: fcmToken).GetAwaiter();
         }
 
-        private ConcurrentDictionary<(Type, string), object> objectSnapshots = new ConcurrentDictionary<(Type, string), object>();
-        public async Task HandleUpdatedDocumentAsync<T>(T obj) where T : ModelBase
+        public async Task HandleUpdatedDocumentAsync<T>(T obj) where T : MessagesConsumerModelBase
         {
-            if (objectSnapshots.TryGetValue((typeof(T), obj.Id), out var savedObj))
+            var messageIds = obj.NewMessageIds;
+            var messageId = messageIds?.FirstOrDefault();
+            if (messageId == null)
+                return;
+            obj.ConsumedMessageIds.Add(messageId);
+            obj.NewMessageIds.Remove(messageId);
+            await _firestoreProvider.AddUpdateAsync(obj);
+            var message = await _firestoreProvider.GetAsync<Message>(messageId);
+            if (message == null)
+                return;
+
+            var pageType = Type.GetType(message.Page);
+            if (pageType.GetInterface(nameof(IPageActions)) != null)
             {
-                if (typeof(T).Equals(typeof(DeviceDetail)))
-                {
-                    var messageId = (obj as DeviceDetail).MessageIds.Except(((DeviceDetail)savedObj).MessageIds).LastOrDefault();
-                    if (messageId == null)
-                        return;
-                    var message = await _firestoreProvider.GetAsync<Message>(messageId);
-                    if (message == null)
-                        return;
-                    await TriggerShowRoomAsync(message);
-                }
+                var page = _serviceProvider.GetService(pageType);
+                if (page == null)
+                    return;
+                await ((IPageActions)page).ReceivedMessageAsync(message);
             }
         }
 
@@ -171,7 +176,8 @@ namespace CheerApp.iOS.Implementations
                 System.Diagnostics.Debug.WriteLine($"Received: {message.Json}");
                 if (message.Page == nameof(ShowRoom) && typeof(ShowRoom).GetInterface(nameof(IPageActions)) != null)
                 {
-                    await TriggerShowRoomAsync(message);
+                    var showRoom = _serviceProvider.GetService(typeof(ShowRoom));
+                    await ((IPageActions)showRoom).ReceivedMessageAsync(message);
                 }
             }
             catch (Exception ex)
@@ -190,39 +196,6 @@ namespace CheerApp.iOS.Implementations
                     System.Diagnostics.Debug.WriteLine($"{data.Key} : {data.Value}");
                 }
             });
-        }
-
-        private async Task TriggerShowRoomAsync(Message message)
-        {
-            var showRoom = (UIViewController)_serviceProvider.GetService(typeof(ShowRoom));
-            var topViewController = ((UINavigationController)Window.RootViewController).TopViewController;
-            var cancelToken = false;
-            if (cancellationTokenSources.ContainsKey(message.Page))
-                cancelToken = true;
-            else
-                cancellationTokenSources.Add(message.Page, new CancellationTokenSource());
-
-            if (topViewController != null && topViewController != showRoom)
-                UIServices.ShowAlert(
-                    this.Window.RootViewController,
-                    "New ShowRoom Notification Arrived",
-                    "Do you want to play ?",
-                    ("OK", UIAlertActionStyle.Default,
-                        async (alert) =>
-                        {
-                            if (cancelToken)
-                                cancellationTokenSources[message.Page].Cancel();
-                            topViewController.NavigationController.PushViewController(showRoom, false);
-                            await ((IPageActions)showRoom).ReceivedNotificationAsync(message, cancellationTokenSources[message.Page].Token);
-                        }
-                ),
-                    ("Cancel", UIAlertActionStyle.Cancel, null));
-            else
-            {
-                if (cancelToken)
-                    cancellationTokenSources[message.Page].Cancel();
-                await((IPageActions)showRoom).ReceivedNotificationAsync(message, cancellationTokenSources[message.Page].Token);
-            }
         }
     }
 }

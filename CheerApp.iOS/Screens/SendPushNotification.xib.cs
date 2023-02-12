@@ -58,9 +58,9 @@ namespace CheerApp.iOS
             var message = new Message
             {
                 Title = txtMessageTitle.Text,
-                Page = nameof(ShowRoom),
+                Page = typeof(ShowRoom).FullName,
                 Action = "Play",
-                StartTime = DateTime.UtcNow.AddSeconds(15).ToString("U"),
+                StartTime = DateTime.UtcNow.AddSeconds(15).ToString("u"),
                 Json = json
             };
 
@@ -84,7 +84,7 @@ namespace CheerApp.iOS
             foreach (var deviceId in deviceIds)
             {
                 var deviceDetail = await _firestoreProvider.GetAsync<DeviceDetail>(deviceId);
-                deviceDetail.MessageIds.Add(message.Id);
+                deviceDetail.NewMessageIds.Add(message.Id);
                 if (deviceDetail == null)
                     continue;
                 //var fcmToken = deviceDetail?.FcmToken;
@@ -95,7 +95,8 @@ namespace CheerApp.iOS
             };
             var task = Task.WhenAll(tasks);
 
-            UIServices.ShowAlert(this, "Info", $"Message sent to {tasks.Count} Devices", ("OK", UIAlertActionStyle.Default, null));
+            if (!deviceIds.Contains(Startup.DeviceId))
+                UIServices.ShowAlert(this, "Info", $"Message sent to {tasks.Count} Devices", ("OK", UIAlertActionStyle.Default, null));
         }
 
         private static string CreateJson()

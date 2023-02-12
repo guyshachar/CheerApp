@@ -44,7 +44,6 @@
     </ItemGroup>
     <ItemGroup>
       <Compile Remove="Extensions\DependencyServiceExtension.cs" />
-      <Compile Remove="Interfaces\IModel.cs" />
       <Compile Remove="Models\ShowRoomNotification.cs" />
       <Compile Remove="Models\CheerAppNotification.cs" />
     </ItemGroup>
