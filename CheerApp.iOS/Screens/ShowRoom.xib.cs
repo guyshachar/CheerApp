@@ -55,7 +55,7 @@ namespace CheerApp.iOS
             base.ViewDidAppear(animated);
 
             if (lastMessage != null && lblMain.Text != lastMessage.Title)
-                UIServices.SetMessageText(lblMain, lastMessage.Title);
+                _uiServices.SetMessageText(lblMain, lastMessage.Title);
 
             var deviceDetails = await _firestoreProvider.GetAsync<DeviceDetail>(Startup.DeviceId);
             this.txtTopics.Text = string.Join(",", deviceDetails.Topics);
@@ -85,7 +85,7 @@ namespace CheerApp.iOS
         private async Task SendAsync(object sender, EventArgs e)
         {
             await _dbService.SendDeviceDetailsToServerAsync(topics: txtTopics.Text);
-            UIServices.ShowAlert(this, "Info", "Topic updated", ("OK", UIAlertActionStyle.Default, null));
+            _uiServices.ShowAlert(this, "Info", "Topic updated", ("OK", (int)UIAlertActionStyle.Default, null));
         }
 
         private void CreateLocalNotification()
@@ -125,28 +125,27 @@ namespace CheerApp.iOS
         public async Task ReceivedMessageAsync(Message message)
         {
             lastMessage = message;
-   
-            UIServices.SetMessageText(lblMain, lastMessage.Title);
+
+            _uiServices.SetMessageText(lblMain, lastMessage.Title);
 
             var showRoom = this;
-            var topViewController = ((UINavigationController)Startup.Window.RootViewController).TopViewController;
             var cancellationTokenSource = new CancellationTokenSource();
 
-            if (topViewController != null && topViewController != showRoom)
-                UIServices.ShowAlert(
-                    Startup.Window.RootViewController,
-                    "New ShowRoom message arrived",
-                    "Do you want to participate ?",
-                    ("OK", UIAlertActionStyle.Default,
-                        async (alert) =>
-                        {
-                            CancelTokens();
-                            CancellationTokenSources.Add(cancellationTokenSource);
-                            topViewController.NavigationController.PushViewController(showRoom, false);
-                            await PlayShowRoomAsync(lastMessage, cancellationTokenSource.Token);
-                        }
-                ),
-                    ("Cancel", UIAlertActionStyle.Cancel, null));
+            if (_uiServices.TopViewPage != null && _uiServices.TopViewPage != showRoom)
+            {
+                var okCancelAlertController = UIAlertController.Create("New ShowRoom message arrived", "Do you want to participate ?",
+                    UIAlertControllerStyle.Alert);
+                okCancelAlertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default,
+                                            async (alert) =>
+                                            {
+                                                CancelTokens();
+                                                CancellationTokenSources.Add(cancellationTokenSource);
+                                                _uiServices.Navigate(showRoom);
+                                                await PlayShowRoomAsync(lastMessage, cancellationTokenSource.Token);
+                                            }));
+                okCancelAlertController.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
+                ((UIViewController)_uiServices.TopViewPage).PresentViewController(okCancelAlertController, true, null);
+            }
             else
             {
                 CancelTokens();
@@ -159,9 +158,8 @@ namespace CheerApp.iOS
         {
             try
             {
-                message.Json = "[{\"FE\":0,\"CD\":\"false\",\"CT\":871},{\"FE\":0,\"CD\":\"true\",\"CT\":1934},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:57,\\u0022G\\u0022:245,\\u0022B\\u0022:8}\",\"CT\":1616},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:184,\\u0022G\\u0022:26,\\u0022B\\u0022:225}\",\"CT\":1180},{\"FE\":0,\"CD\":\"false\",\"CT\":1121},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:37,\\u0022G\\u0022:118,\\u0022B\\u0022:232}\",\"CT\":1028},{\"FE\":0,\"CD\":\"false\",\"CT\":897},{\"FE\":0,\"CD\":\"true\",\"CT\":1885},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:42,\\u0022G\\u0022:253,\\u0022B\\u0022:186}\",\"CT\":1738},{\"FE\":0,\"CD\":\"false\",\"CT\":1044},{\"FE\":0,\"CD\":\"true\",\"CT\":832},{\"FE\":0,\"CD\":\"true\",\"CT\":1060},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:183,\\u0022G\\u0022:16,\\u0022B\\u0022:114}\",\"CT\":1461},{\"FE\":0,\"CD\":\"false\",\"CT\":1449},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:5,\\u0022G\\u0022:25,\\u0022B\\u0022:239}\",\"CT\":1728},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:37,\\u0022G\\u0022:112,\\u0022B\\u0022:209}\",\"CT\":1149},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:34,\\u0022G\\u0022:23,\\u0022B\\u0022:73}\",\"CT\":1261},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:188,\\u0022G\\u0022:163,\\u0022B\\u0022:39}\",\"CT\":1273},{\"FE\":0,\"CD\":\"true\",\"CT\":1935},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:246,\\u0022G\\u0022:68,\\u0022B\\u0022:175}\",\"CT\":1155},{\"FE\":0,\"CD\":\"false\",\"CT\":1364},{\"FE\":0,\"CD\":\"true\",\"CT\":1782},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:248,\\u0022G\\u0022:160,\\u0022B\\u0022:108}\",\"CT\":685},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:18,\\u0022G\\u0022:169,\\u0022B\\u0022:241}\",\"CT\":1718},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:92,\\u0022G\\u0022:140,\\u0022B\\u0022:73}\",\"CT\":1798},{\"FE\":0,\"CD\":\"true\",\"CT\":805},{\"FE\":0,\"CD\":\"false\",\"CT\":1988},{\"FE\":0,\"CD\":\"true\",\"CT\":1176},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:41,\\u0022G\\u0022:0,\\u0022B\\u0022:145}\",\"CT\":1068},{\"FE\":0,\"CD\":\"true\",\"CT\":544}]";
-                string jsonShow = message.Json;
-                var commands = _jsonHelper.Deserialize<IEnumerable<Command>>(jsonShow);
+                //message.Json = "[{\"FE\":0,\"CD\":\"false\",\"CT\":871},{\"FE\":0,\"CD\":\"true\",\"CT\":1934},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:57,\\u0022G\\u0022:245,\\u0022B\\u0022:8}\",\"CT\":1616},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:184,\\u0022G\\u0022:26,\\u0022B\\u0022:225}\",\"CT\":1180},{\"FE\":0,\"CD\":\"false\",\"CT\":1121},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:37,\\u0022G\\u0022:118,\\u0022B\\u0022:232}\",\"CT\":1028},{\"FE\":0,\"CD\":\"false\",\"CT\":897},{\"FE\":0,\"CD\":\"true\",\"CT\":1885},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:42,\\u0022G\\u0022:253,\\u0022B\\u0022:186}\",\"CT\":1738},{\"FE\":0,\"CD\":\"false\",\"CT\":1044},{\"FE\":0,\"CD\":\"true\",\"CT\":832},{\"FE\":0,\"CD\":\"true\",\"CT\":1060},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:183,\\u0022G\\u0022:16,\\u0022B\\u0022:114}\",\"CT\":1461},{\"FE\":0,\"CD\":\"false\",\"CT\":1449},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:5,\\u0022G\\u0022:25,\\u0022B\\u0022:239}\",\"CT\":1728},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:37,\\u0022G\\u0022:112,\\u0022B\\u0022:209}\",\"CT\":1149},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:34,\\u0022G\\u0022:23,\\u0022B\\u0022:73}\",\"CT\":1261},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:188,\\u0022G\\u0022:163,\\u0022B\\u0022:39}\",\"CT\":1273},{\"FE\":0,\"CD\":\"true\",\"CT\":1935},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:246,\\u0022G\\u0022:68,\\u0022B\\u0022:175}\",\"CT\":1155},{\"FE\":0,\"CD\":\"false\",\"CT\":1364},{\"FE\":0,\"CD\":\"true\",\"CT\":1782},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:248,\\u0022G\\u0022:160,\\u0022B\\u0022:108}\",\"CT\":685},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:18,\\u0022G\\u0022:169,\\u0022B\\u0022:241}\",\"CT\":1718},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:92,\\u0022G\\u0022:140,\\u0022B\\u0022:73}\",\"CT\":1798},{\"FE\":0,\"CD\":\"true\",\"CT\":805},{\"FE\":0,\"CD\":\"false\",\"CT\":1988},{\"FE\":0,\"CD\":\"true\",\"CT\":1176},{\"FE\":1,\"CD\":\"{\\u0022R\\u0022:41,\\u0022G\\u0022:0,\\u0022B\\u0022:145}\",\"CT\":1068},{\"FE\":0,\"CD\":\"true\",\"CT\":544}]";
+                var commands = _jsonHelper.Deserialize<IEnumerable<Command>>(message.Json);
 
                 var timeInShow = DateTime.Parse(message.StartTime).ToUniversalTime();
 
@@ -184,7 +182,7 @@ namespace CheerApp.iOS
                             break;
                         case FeatureEnum.Screen:
                             var rgb = _jsonHelper.Deserialize<RGB>(command.CommandDetails);
-                            var color = UIColor.FromRGB(rgb.R, rgb.G, rgb.B);
+                            var color = System.Drawing.Color.FromArgb(rgb.A, rgb.R, rgb.G, rgb.B);
                             _uiServices.PaintScreen(this, color);
                             break;
                         default:

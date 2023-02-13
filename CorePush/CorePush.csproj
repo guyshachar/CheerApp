@@ -65,7 +65,6 @@ v3.0.0
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="7.0.1" />
     <PackageReference Include="System.Security.Cryptography.Cng" Version="5.0.0" />
-    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2545" />
   </ItemGroup>
   
   <ItemGroup>
@@ -87,9 +86,6 @@ v3.0.0
   <ItemGroup>
     <Reference Include="mscorlib">
       <HintPath>..\..\..\..\..\Library\Frameworks\Xamarin.iOS.framework\Versions\16.1.1.27\lib\mono\Xamarin.iOS\mscorlib.dll</HintPath>
-    </Reference>
-    <Reference Include="Xamarin.iOS">
-      <HintPath>..\..\..\..\..\Library\Frameworks\Xamarin.iOS.framework\Versions\16.1.1.27\lib\mono\Xamarin.iOS\Xamarin.iOS.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

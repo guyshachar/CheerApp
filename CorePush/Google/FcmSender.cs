@@ -6,12 +6,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using CorePush.Google;
 using CorePush.Interfaces.Google;
 using CorePush.Utils;
-using Xamarin.Forms;
 
-[assembly: Dependency(typeof(FcmSender))]
 namespace CorePush.Google
 {
     /// <summary>

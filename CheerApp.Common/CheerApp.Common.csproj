@@ -38,11 +38,6 @@
       <ProjectReference Include="..\CorePush\CorePush.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <Reference Include="Xamarin.iOS">
-        <HintPath>..\..\..\..\..\Library\Frameworks\Xamarin.iOS.framework\Versions\16.1.1.27\lib\mono\Xamarin.iOS\Xamarin.iOS.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-    <ItemGroup>
       <Compile Remove="Extensions\DependencyServiceExtension.cs" />
       <Compile Remove="Models\ShowRoomNotification.cs" />
       <Compile Remove="Models\CheerAppNotification.cs" />

@@ -20,16 +20,19 @@ namespace CheerApp.iOS
     public partial class SendPushNotification : UIViewController
     {
         private readonly IFirestoreProvider _firestoreProvider;
+        private readonly IUIServices _uiServices;
         private readonly IApnSender _apnSender;
         private readonly IFcmSender _fcmSender;
-        
+
         //loads the HelloUniverseScreen.xib file and connects it to this object
         public SendPushNotification(
             IFirestoreProvider firestoreProvider,
+            IUIServices uiServices,
             IApnSender apnSender,
             IFcmSender fcmSender) : base(nameof(SendPushNotification), null)
         {
             _firestoreProvider = firestoreProvider;
+            _uiServices = uiServices;
             _apnSender = apnSender;
             _fcmSender = fcmSender;
 
@@ -96,12 +99,12 @@ namespace CheerApp.iOS
             var task = Task.WhenAll(tasks);
 
             if (!deviceIds.Contains(Startup.DeviceId))
-                UIServices.ShowAlert(this, "Info", $"Message sent to {tasks.Count} Devices", ("OK", UIAlertActionStyle.Default, null));
+                _uiServices.ShowAlert(this, "Info", $"Message sent to {tasks.Count} Devices", ("OK", (int)UIAlertActionStyle.Default, null));
         }
 
         private static string CreateJson()
         {
-            var rnd = new Random();
+            var rnd = new Random(DateTime.Now.Millisecond);
             var commands = new List<Command>();
             for (var i = 0; i < 30; i++)
             {
@@ -136,7 +139,8 @@ namespace CheerApp.iOS
                 var r = rnd.Next(255);
                 var g = rnd.Next(255);
                 var b = rnd.Next(255);
-                return new RGB(r, g, b);
+                var a = rnd.Next(255);
+                return new RGB(r, g, b, a);
             }
         }
     }

@@ -1,8 +1,5 @@
-using CheerApp.iOS.Implementations;
 using CorePush.Interfaces.Google;
-using DependencyAttribute = Xamarin.Forms.DependencyAttribute;
 
-[assembly: Dependency(typeof(FcmSettings))]
 namespace CheerApp.iOS.Implementations
 {
     public class FcmSettings : IFcmSettings

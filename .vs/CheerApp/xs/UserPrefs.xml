@@ -1,16 +1,15 @@
-﻿<Properties StartupConfiguration="{A10944A3-80E8-4A8D-A6F5-1A10606AAE60}|Default" BuildWithMSBuildOnMono="True">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" />
+﻿<Properties BuildWithMSBuildOnMono="True" StartupConfiguration="{A10944A3-80E8-4A8D-A6F5-1A10606AAE60}|Default">
+  <MonoDevelop.Ide.ItemProperties.CheerApp.Android PreferredExecutionTarget="Android.SelectDevice" />
+  <MonoDevelop.Ide.ItemProperties.CheerApp.iOS PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.BC3C3856-1C80-4AA3-B3A2-0FC5B4F3D4C5" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.CheerApp.iOS PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.BC3C3856-1C80-4AA3-B3A2-0FC5B4F3D4C5" Xamarin.HotReload.GenericExceptionInfoBar.CheerApp.iOS.HideInfoBar="True" Xamarin.HotReload.DebuggerTimeoutException.CheerApp.iOS.HideInfoBar="True" Xamarin.HotReload.WrongLinkerErrorInfoBar.CheerApp.iOS.HideInfoBar="True" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="CheerApp.iOS/Screens/SendPushNotification.xib.cs">
+  <Xamarin.Addins.Core.Project ActiveDebugTarget="Android.SelectDevice" />
+  <Debugger.DebugSourceFolders />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="CheerApp.Common/Startup.cs">
     <Files>
-      <File FileName="CheerApp.iOS/AppDelegate.cs" Line="76" Column="11" />
-      <File FileName="CheerApp.iOS/Implementations/MessagesHandler.cs" Line="138" Column="34" />
-      <File FileName="CheerApp.Common/Startup.cs" Line="64" Column="141" />
-      <File FileName="CheerApp.iOS/Implementations/FirestoreProvider.cs" Line="117" Column="1" />
-      <File FileName="CheerApp.iOS/Screens/ShowRoom.xib.cs" Line="14" Column="31" />
-      <File FileName="CheerApp.Common/Models/DeviceDetail.cs" Line="14" Column="53" />
-      <File FileName="CheerApp.iOS/Screens/SendPushNotification.xib.cs" Line="61" Column="49" />
+      <File FileName="CheerApp.iOS/AppDelegate.cs" Line="76" Column="1" />
+      <File FileName="CheerApp.iOS/Implementations/UIServices.cs" Line="17" Column="34" />
+      <File FileName="CheerApp.Common/Startup.cs" Line="62" Column="32" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -18,35 +17,19 @@
           <Option id="ShowAllFiles" value="True" />
           <Node name="CheerApp" expanded="True">
             <Node name="CheerApp.Common" expanded="True">
-              <Node name="Extensions" expanded="True" />
               <Node name="Implementations" expanded="True" />
               <Node name="Interfaces" expanded="True" />
-              <Node name="Models" expanded="True" />
             </Node>
             <Node name="CheerApp.iOS" expanded="True">
               <Node name="Implementations" expanded="True" />
-              <Node name="Screens" expanded="True">
-                <Node name="SendPushNotification.xib" expanded="True">
-                  <Node name="SendPushNotification.xib.cs" selected="True" />
-                </Node>
-                <Node name="ShowRoom.xib" expanded="True" />
-              </Node>
             </Node>
           </Node>
         </State>
       </Pad>
-      <Pad Id="MonoDevelop.Debugger.WatchPad">
-        <State />
-      </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Screens/ShowRoom.xib.cs" relfile="CheerApp.iOS/Screens/ShowRoom.xib.cs" line="92" column="1" />
-      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Implementations/FirestoreProvider.cs" relfile="CheerApp.iOS/Implementations/FirestoreProvider.cs" line="138" column="1" />
-      <Breakpoint file="/Users/guyshachar/Projects/CheerApp/CheerApp.iOS/Implementations/PushHandler.cs" relfile="CheerApp.iOS/Implementations/PushHandler.cs" line="142" column="1" />
-    </BreakpointStore>
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <Debugger.DebugSourceFolders />
   <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
 </Properties>

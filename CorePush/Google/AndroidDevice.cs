@@ -2,7 +2,6 @@
 using CorePush.Google;
 using CorePush.Interfaces;
 
-[assembly: Xamarin.Forms.Dependency(typeof(AndroidDevice))]
 namespace CorePush.Google
 {
     public class AndroidDevice : IDevice

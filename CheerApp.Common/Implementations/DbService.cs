@@ -1,31 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CheerApp.Common.Interfaces;
 using CheerApp.Common.Models;
-using UIKit;
 
 namespace CheerApp.Common.Implementations
 {
     public class DbService : IDbService
     {
-        private readonly IFirestoreProvider FirestoreProvider;
+        private readonly IFirestoreProvider _firestoreProvider;
+        private readonly IDeviceHelper _deviceHelper;
 
-        public DbService(IFirestoreProvider firestoreProvider)
+        public DbService(IFirestoreProvider firestoreProvider, IDeviceHelper deviceHelper)
         {
-            FirestoreProvider = firestoreProvider;
+            _firestoreProvider = firestoreProvider;
+            _deviceHelper = deviceHelper;
         }
 
         public async Task SendDeviceDetailsToServerAsync(string apnToken = null, string fcmToken = null, string topicIds = null)
         {
             System.Diagnostics.Debug.WriteLine($"{nameof(DbService)}:{nameof(SendDeviceDetailsToServerAsync)} apnToken={apnToken} fcmToken={fcmToken} topicId={topicIds}");
 
-            var deviceDetail = await FirestoreProvider.GetAsync<DeviceDetail>(Startup.DeviceId) ?? DeviceDetail.Init(Startup.DeviceId);
+            var deviceDetail = await _firestoreProvider.GetAsync<DeviceDetail>(Startup.DeviceId) ?? DeviceDetail.Init(Startup.DeviceId);
 
-            deviceDetail.Name = UIDevice.CurrentDevice.Name;
-            deviceDetail.Description = UIDevice.CurrentDevice.Description;
-            deviceDetail.Version = UIDevice.CurrentDevice.SystemVersion;
+            _deviceHelper.FillDeviceDetails(deviceDetail);
 
             if (apnToken != null)
                 deviceDetail.ApnToken = apnToken;
@@ -40,7 +38,7 @@ namespace CheerApp.Common.Implementations
                 topicsChanged = true;
                 deviceDetail.Topics = topicIds.Split(',').ToList();
             }
-            await FirestoreProvider.AddUpdateAsync(deviceDetail);
+            await _firestoreProvider.AddUpdateAsync(deviceDetail);
 
             if (!topicsChanged)
                 return;
@@ -51,7 +49,7 @@ namespace CheerApp.Common.Implementations
 
             foreach (var topicId in topicsToAdd)
             {
-                var topic = await FirestoreProvider.GetAsync<Topic>(topicId);
+                var topic = await _firestoreProvider.GetAsync<Topic>(topicId);
                 if (topic == null)
                     topic = Topic.Init(topicId);
                 var deviceIds = topic.DeviceIds;
@@ -60,14 +58,14 @@ namespace CheerApp.Common.Implementations
 
                 deviceIds.Add(deviceDetail.Id);
                 topic.DeviceIds = deviceIds;
-                await FirestoreProvider.AddUpdateAsync(topic);
+                await _firestoreProvider.AddUpdateAsync(topic);
             }
 
             foreach (var topicId in topicsToRemove)
             {
                 if (topicId == Startup.TOPIC_ALL)
                     continue;
-                var topic = await FirestoreProvider.GetAsync<Topic>(topicId);
+                var topic = await _firestoreProvider.GetAsync<Topic>(topicId);
                 if (topic == null)
                     continue;
                 var deviceIds = topic.DeviceIds;
@@ -76,7 +74,7 @@ namespace CheerApp.Common.Implementations
 
                 deviceIds.Remove(deviceDetail.Id);
                 topic.DeviceIds = deviceIds;
-                await FirestoreProvider.AddUpdateAsync(topic);
+                await _firestoreProvider.AddUpdateAsync(topic);
             }
         }
     }

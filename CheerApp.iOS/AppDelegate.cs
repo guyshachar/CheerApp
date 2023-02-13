@@ -6,6 +6,7 @@ using CheerApp.Common.Models;
 using CheerApp.iOS.Implementations;
 using Firebase.CloudMessaging;
 using Foundation;
+using Google.Api;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Plugin.PushNotification;
@@ -37,12 +38,14 @@ namespace CheerApp.iOS
                 =>
             {
                 serviceCollection.AddSingleton<IFirestoreProvider, FirestoreProvider>();
+                serviceCollection.AddSingleton<IUIServices, UIServices>();
+                serviceCollection.AddSingleton<IDeviceHelper, DeviceHelper>();
                 serviceCollection.AddSingleton<HomeScreen>();
                 serviceCollection.AddSingleton<ShowRoom>();
                 serviceCollection.AddSingleton<SendPushNotification>();
                 serviceCollection.AddSingleton<IPushHandler, PushHandler>();
                 serviceCollection.AddSingleton<IPushNotificationHandler, PushNotificationHandler>();
-            }, typeof(HomeScreen), this, app, options);
+            }, typeof(HomeScreen), UIDevice.CurrentDevice.IdentifierForVendor.ToString(), this, app, options);
 
             dbService = Host.Services
                .GetService<IDbService>();
@@ -73,7 +76,8 @@ namespace CheerApp.iOS
 
             // reset our badge
             UIApplication.SharedApplication.ApplicationIconBadgeNumber--;
-        */}
+        */
+        }
 
         /// <summary>
         /// The iOS will call the APNS in the background and issue a device token to the device. when that's

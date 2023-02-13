@@ -32,6 +32,8 @@ namespace CheerApp.Common.Models
         public string FcmToken { get; set; }
         [FirestoreProperty]
         public List<string> Topics { get; set; } = new List<string>();
+        [FirestoreProperty]
+        public string AppVersion { get; set; }
 
         public static DeviceDetail Init(string id)
         {
