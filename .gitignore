@@ -8,3 +8,5 @@ packages
 .vs/CheerApp/xs/UserPrefs.xml
 .vs/CheerApp/xs/project-cache/CheerApp.iOS-Release|iPhoneSimulator.json
 .vs/CheerApp/xs/project-cache/CheerApp.iOS-Release|iPhoneSimulator.json
+.vs/CheerApp/v17/.suo
+*.user
